@@ -1,0 +1,31 @@
+.vscode
+
+.artifacts/**
+.tmp/**
+.env
+
+test-harness/.engine/**
+test-harness/.env
+test-harness/coldbox/**
+test-harness/docbox/**
+test-harness/testbox/**
+test-harness/logs/**
+test-harness/modules/**
+
+# Workbench items
+docker/mysql/tmp
+
+# CommandBox Modules
+modules/**
+
+# Development artifacts
+node_modules
+includes/fonts
+includes/css
+includes/images
+includes/js
+includes/*.json
+# log files
+logs/**
+/nbproject/private/
+nbproject/

@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS `contentbox` /*!40100 DEFAULT CHARACTER SET latin1 */;
+
+USE `contentbox`;

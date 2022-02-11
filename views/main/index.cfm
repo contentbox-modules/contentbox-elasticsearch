@@ -1,0 +1,1 @@
+<h1>Welcome to the Elasticsearch Admin</h1>

@@ -1,0 +1,67 @@
+version: '3'
+
+services:
+
+  mysql:
+    image: mariadb
+    environment:
+      MYSQL_DATABASE: contentbox
+      MYSQL_ROOT_PASSWORD: T35t1ng1234!
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./build/docker/mysql/tmp:/tmp/mysql
+      - ./build/docker/mysql/init.db.sql:/docker-entrypoint-initdb.d/init.db.sql
+      - ./build/docker/mysql/conf.d:/etc/mysql/mariadb.conf.d/custom.cnf
+    ports:
+      - "3307:3306"
+
+  #ElasticSearch Container
+  elasticsearch:
+    build: ./build/docker/elasticsearch
+    environment:
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+      http.host: "0.0.0.0"
+      transport.host: "127.0.0.1"
+      xpack.security.transport.ssl.enabled: "true"
+      xpack.security.enabled: "true"
+      ELASTIC_PASSWORD: T35t1ng1234!
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      # Persistent data
+      - elasticsearch-data:/usr/share/elasticsearch/data
+
+  #App Server
+  app:
+    image: ortussolutions/commandbox:lucee5
+    depends_on:
+      - mysql
+      - elasticsearch
+    environment:
+      cfconfig_adminPassword: T35t1ng1234!
+      PORT: 8080
+      SSL_PORT: 8443
+      HEALTHCHECK_URI: http://app/config/Routes.cfm
+      DB_HOST: mssql
+      DB_PORT: 1433
+      DB_DATABASE: contentbox
+      DB_USER: root
+      DB_PASSWORD: T35t1ng1234!
+      ENVIRONMENT: development
+    ports:
+      - "61651:8080"
+      - "61653:8443"
+    volumes:
+      - .:/app:delegated
+      # Mount our application in delgated mode
+      - ../:/app/modules/contentbox/modules_user/contentbox-elasticsearch:delegated
+      # Stop recursion to prevent ORM scanning errors
+      - ./logs:/app/modules/contentbox/modules_user/contentbox-elasticsearch/test-harness
+    expose:
+      - "8080"
+      - "8443"
+
+volumes:
+  mysql-data:
+  elasticsearch-data:

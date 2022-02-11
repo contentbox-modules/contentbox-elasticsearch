@@ -1,0 +1,28 @@
+{
+    "name":"Tester",
+    "version":"0.0.0",
+    "slug":"tester",
+    "private":true,
+    "description":"",
+    "dependencies":{
+        "coldbox":"^6.6.0+1",
+        "contentbox":"^5.0.3+147",
+        "contentbox-installer-module":"^5.0.3"
+    },
+    "devDependencies":{
+        "testbox":"^3.1.0",
+        "route-visualizer":"^1.0.0",
+        "mockdatacfc":"^3.0.0+7"
+    },
+    "installPaths":{
+        "coldbox":"coldbox/",
+        "testbox":"testbox/",
+        "route-visualizer":"modules/route-visualizer/",
+        "mockdatacfc":"modules/mockdatacfc/",
+        "contentbox":"modules/contentbox/",
+        "contentbox-installer-module":"modules/contentbox-installer/"
+    },
+    "testbox":{
+        "runner":"http://localhost:61651/tests/runner.cfm"
+    }
+}

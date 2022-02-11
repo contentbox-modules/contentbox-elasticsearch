@@ -1,0 +1,2 @@
+# ContentBox Elasticsearch Search Provider
+
