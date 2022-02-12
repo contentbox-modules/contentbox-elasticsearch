@@ -43,11 +43,14 @@ services:
       PORT: 8080
       SSL_PORT: 8443
       HEALTHCHECK_URI: http://app/config/Routes.cfm
-      DB_HOST: mssql
-      DB_PORT: 1433
+      DB_HOST: mysql
+      DB_PORT: 3306
       DB_DATABASE: contentbox
       DB_USER: root
       DB_PASSWORD: T35t1ng1234!
+      ELASTICSEARCH_HOST: elasticsearch
+      ELASTICSEARCH_USERNAME: elastic
+      ELASTICSEARCH_PASSWORD: "T35t1ng1234!"
       ENVIRONMENT: development
     ports:
       - "61651:8080"

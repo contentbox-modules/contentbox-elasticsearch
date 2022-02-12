@@ -48,7 +48,7 @@ component {
 
 		// Custom Declared Interceptors
 		interceptors = [
-			{ class="escontentbox.interceptors.Content" }
+			{ class="escontentbox.interceptors.Serializer" }
 		];
 
 		// Binder Mappings

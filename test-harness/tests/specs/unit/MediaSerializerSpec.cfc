@@ -1,7 +1,7 @@
 /**
 * My BDD Test
 */
-component extends="testbox.system.BaseSpec"{
+component extends="tests.resources.BaseTest"{
 
 /*********************************** LIFE CYCLE Methods ***********************************/
 

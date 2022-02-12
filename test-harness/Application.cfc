@@ -89,10 +89,10 @@ component {
 		],
 		// THE DIALECT OF YOUR DATABASE OR LET HIBERNATE FIGURE IT OUT, UP TO YOU TO CONFIGURE
 		//dialect				: "PostgreSQL", // PostgreSQL Dialect
-		//dialect 			  	: "MySQLDialect", // Basic MySQL Dialect
-		//dialect 			  	: "MySQLwithInnoDB", // MySQL With InnoDB engine
+		// dialect 			  	: "MySQLDialect", // Basic MySQL Dialect
+		dialect 			  	: "MySQLwithInnoDB", // MySQL With InnoDB engine
 		//dialect			  	: "org.hibernate.dialect.MySQL5InnoDBDialect", // Adobe 2016 + MySQL Dialect
-		dialect 				: "MicrosoftSQLServer", // SQL Server Dialect
+		// dialect 				: "MicrosoftSQLServer", // SQL Server Dialect
 		//dialect 				: "Oracle10g", // Oracle 10G+
 		// DO NOT REMOVE THE FOLLOWING LINE OR AUTO-UPDATES MIGHT FAIL.
 		dbcreate              : "update",

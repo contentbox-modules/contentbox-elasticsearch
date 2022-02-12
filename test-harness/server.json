@@ -6,6 +6,7 @@
             "enable": true
         }
     },
+	"profile" : "development",
     "jvm": {
 		"args":
 		  "-Dfile.encoding=UTF8 -Djava.awt.headless=true -XX:ReservedCodeCacheSize=512m -Xms10000m -Xmx10000m -Dcom.sun.net.ssl.enableECC=false -XX:+UseG1GC"
