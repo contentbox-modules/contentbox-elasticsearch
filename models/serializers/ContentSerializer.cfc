@@ -6,7 +6,9 @@ component {
 	property name="esClient"       inject="Client@cbelasticsearch";
 	property name="wirebox"        inject="wirebox";
 
-	variables.dateFormatter = createObject( "java", "java.text.SimpleDateFormat" ).init( "yyyy-MM-dd'T'HH:mm:ssXXX" );
+	variables.dateFormatter = createObject( "java", "java.text.SimpleDateFormat" ).init(
+		"yyyy-MM-dd'T'HH:mm:ssXXX"
+	);
 
 	/**
 	 * Ensures the search index on DI complete
@@ -23,9 +25,8 @@ component {
 	 *
 	 * @entity
 	 */
-	function serialize( required BaseContent entity, refresh=false ){
-
-		if( !arguments.entity.isLoaded() ){
+	function serialize( required BaseContent entity, refresh = false ){
+		if ( !arguments.entity.isLoaded() ) {
 			throw(
 				type    = "ESContentBox.unloadedEntityException",
 				message = "The entity provided was not loaded and contains no data.  Could not continue"
@@ -63,11 +64,11 @@ component {
 			iso8601Format  = true
 		);
 
-		if( !len( memento.expireDate ) ){
+		if ( !len( memento.expireDate ) ) {
 			// make sure we have an expire date for comparisons
 			memento.expireDate = dateFormatter.format( dateAdd( "y", 100, now() ) );
 		}
-		if( isStruct( memento.creator ) ){
+		if ( isStruct( memento.creator ) ) {
 			memento.creator = memento.creator.creator;
 		}
 
@@ -83,8 +84,7 @@ component {
 	 *
 	 * @criteria An optional restrictive criteria query to pass in
 	 */
-	function serializeAll( criteria, refresh=false ){
-
+	function serializeAll( criteria, refresh = false ){
 		var projectionIncludes = [
 			"contentID",
 			"contentType",
@@ -175,7 +175,10 @@ component {
 
 		return variables.esClient.processBulkOperation(
 			operations = ops,
-			params     = { "pipeline" : variables.moduleSettings.pipeline, "refresh" : arguments.refresh ? "wait_for" : false }
+			params     = {
+				"pipeline" : variables.moduleSettings.pipeline,
+				"refresh"  : arguments.refresh ? "wait_for" : false
+			}
 		);
 	}
 

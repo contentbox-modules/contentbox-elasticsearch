@@ -8,7 +8,7 @@ component {
 	/**
 	 * ContentBox Post File Upload Interception Event
 	 *
-	 * @event
+	 * @event        
 	 * @interceptData
 	 */
 	function fb_postFileUpload( event, interceptData ){
@@ -30,7 +30,7 @@ component {
 	/**
 	 * ORM Post-Insert Interception Event
 	 *
-	 * @event
+	 * @event        
 	 * @interceptData
 	 */
 	function ORMPostInsert( event, interceptData ){
@@ -40,7 +40,7 @@ component {
 	/**
 	 * ORM Post-Save Interception Event
 	 *
-	 * @event
+	 * @event        
 	 * @interceptData
 	 */
 	function ORMPostSave( event, interceptData ){
@@ -50,7 +50,7 @@ component {
 	/**
 	 * Handles the post-persistence of content items for serialization to elasticsearch
 	 *
-	 * @event
+	 * @event        
 	 * @interceptData
 	 */
 	private function postPersist( event, interceptData ){

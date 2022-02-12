@@ -10,7 +10,7 @@ component {
 	 * Serializes an individual media item with a provided path
 	 *
 	 * @mediaPath
-	 * @memento  an optional memento of fields to add to the serialized document
+	 * @memento   an optional memento of fields to add to the serialized document
 	 */
 	function serialize( required string mediaPath, struct memento = {} ){
 		if ( !fileExists( arguments.mediaPath ) ) {
@@ -61,7 +61,7 @@ component {
 	/**
 	 * Serializes all media in the
 	 *
-	 * @directory  An optional directory to restrict serialization to
+	 * @directory An optional directory to restrict serialization to
 	 */
 	function serializeAll( directory ){
 		var searchPath       = arguments.directory ?: moduleSettings.ingestBaseDirectory;

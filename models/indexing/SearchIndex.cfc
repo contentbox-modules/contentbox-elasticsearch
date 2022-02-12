@@ -60,11 +60,9 @@ component {
 						.save();
 
 					// now alias our index
-					var aliasBuilder = wirebox.getInstance( "AliasBuilder@cbElasticsearch" ).new(
-						"add",
-						searchIndexName,
-						searchIndexAlias
-					);
+					var aliasBuilder = wirebox
+						.getInstance( "AliasBuilder@cbElasticsearch" )
+						.new( "add", searchIndexName, searchIndexAlias );
 					searchClient.applyAliases( aliasBuilder );
 				} else if ( !mappingExists && aliasExists ) {
 					log.warn(
@@ -113,7 +111,8 @@ component {
 			ctx.meta.lastSerializedTime = new SimpleDateFormat( ""yyyy-MM-dd'T'HH:mm:ssXXX"" ).format(new Date());
         ";
 
-		wirebox.getInstance( "Pipeline@cbElasticsearch" )
+		wirebox
+			.getInstance( "Pipeline@cbElasticsearch" )
 			.new( {
 				"id"          : variables.moduleSettings.pipeline,
 				"description" : "Pipeline for ingesting contentbox content items",
@@ -134,7 +133,8 @@ component {
 		// media ingest pipeline
 		if ( moduleSettings.ingestMedia ) {
 			try {
-				wirebox.getInstance( "Pipeline@cbElasticsearch" )
+				wirebox
+					.getInstance( "Pipeline@cbElasticsearch" )
 					.new( {
 						"id"          : variables.moduleSettings.pipeline & "_media",
 						"description" : "Pipeline for ingesting contentbox media for textual search",
