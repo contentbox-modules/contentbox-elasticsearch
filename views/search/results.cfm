@@ -4,18 +4,19 @@
 	<cfloop array="#args.results.getResults()#" index="i" item="result">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-			<a href="/#result.slug#" class="panel-title">#item.title#</a>
+			<a href="/#result.slug#" class="panel-title">#result.title#</a>
 			</div>
 			<div class="panel-body">
-				<p>#highlightSearchTerm( searchTerm, truncate( text=stripHTML( len( item.excerpt ) ? item.excerpt : item.content ), stop=30, delimiter=" " ) )#</p>
+				<p>#highlightSearchTerm( args.results.getSearchTerm(), truncate( text=stripHTML( !isNull( result.excerpt ) && len( result.excerpt ) ? result.excerpt : result.content ), stop=30, delimiter=" " ) )#</p>
 			</div>
 			<cfif result.categories.len()>
 				<div class="panel-footer">
 					<cite>Categories:
-						<cfloop array="#results.categories#" item="category"><span class="label label-primary">#category#</span></cfloop>
+						<cfloop array="#result.categories#" item="category"><span class="label label-primary">#category#</span></cfloop>
 					</cite>
 				</div>
 			</cfif>
 		</div>
 	</cfloop>
 </div>
+</cfoutput>

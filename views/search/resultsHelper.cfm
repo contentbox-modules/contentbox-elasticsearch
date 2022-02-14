@@ -1,6 +1,6 @@
 <cfscript>
 	function truncate( required string text, numeric stop=250, string clamp="...", string delimiter="" ) {
-		var exploded = text.toArray( delimiter );
+		var exploded = listToArray( text, delimiter );
 		if( exploded.len() >= stop ) arguments.clamp = "";
 		return exploded
 					.filter( function( item, index ){ return index <= stop; } )

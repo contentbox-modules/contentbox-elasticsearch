@@ -39,6 +39,7 @@ component {
 			"contentID",
 			"contentType",
 			"createdDate",
+			"slug",
 			"creator.fullName:creator",
 			"categoriesArray:categories",
 			"expireDate",
@@ -93,6 +94,7 @@ component {
 			"contentID",
 			"contentType",
 			"createdDate",
+			"slug",
 			"creator.firstName",
 			"creator.lastName",
 			"categories.category:category",
@@ -161,6 +163,9 @@ component {
 				}
 				if ( !isNull( entry[ "category" ] ) && len( entry[ "category" ] ) ) {
 					entry[ "categories" ].append( entry[ "category" ] );
+				}
+				if ( isNull( entry[ "expireDate" ] ) ) {
+					entry[ "expireDate" ] = dateFormatter.format( dateAdd( "y", 100, now() ) );
 				}
 				structDelete( entry, "category" );
 				return acc;

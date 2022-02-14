@@ -42,7 +42,7 @@ component {
 			"ingestBaseDirectory" : "/contentbox-custom/_content",
 			"resultsTemplate" : {
 				"module" : "contentbox-elasticsearch",
-				"view" : "searchResults"
+				"view" : "search/results"
 			}
 		};
 

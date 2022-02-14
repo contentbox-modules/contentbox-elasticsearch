@@ -12,9 +12,13 @@ component accessors="true" singleton {
 	property name="wirebox"          inject="wirebox";
 	property name="cb"               inject="cbHelper@contentbox";
 	property name="searchClient"     inject="Client@cbelasticsearch";
-	property name="newSearchBuilder" inject="provider:SearchBuilder@cbelasticsearch";
 	property name="moduleSettings"   inject="coldbox:moduleSettings:contentbox-elasticsearch";
+	property name="requestService"   inject="coldbox:RequestService";
 	property name="renderer"         inject="Renderer@coldbox";
+
+	variables.dateFormatter = createObject( "java", "java.text.SimpleDateFormat" ).init(
+		"yyyy-MM-dd'T'HH:mm:ssXXX"
+	);
 
 	/**
 	 * Constructor
@@ -22,6 +26,11 @@ component accessors="true" singleton {
 	SearchAdapter function init(){
 		return this;
 	}
+
+	/**
+	 * Provider function for a new search builder
+	 */
+	function newSearchBuilder() provider="SearchBuilder@cbelasticsearch"{}
 
 	/**
 	 * Search content and return an standardized ContentBox Results object.
@@ -47,13 +56,14 @@ component accessors="true" singleton {
 			contentTypes.append( "Media" )
 		}
 		var builder = newSearchBuilder()
+			.setIndex( variables.moduleSettings.searchIndex )
 			.setMaxRows( arguments.max )
 			.setStartRow( arguments.offset )
-			.filterTerm( "isDeleted" : false )
-			.filterTerm( "isPublished" : true )
-			.filterTerm( "showInSearch" : true )
+			.filterTerm( "isDeleted", false )
+			.filterTerm( "isPublished", true )
+			.filterTerm( "showInSearch", true )
 			.filterTerms( "contentType", contentTypes )
-			.dateMatch( field = "expireDate", start = now() )
+			.dateMatch( name = "expireDate", start = dateFormatter.format( now() ) )
 			.setSource( { "includes" : [], "excludes" : [ "blob" ] } );
 
 		if ( len( arguments.siteID ) ) {
@@ -61,7 +71,7 @@ component accessors="true" singleton {
 		}
 
 		if ( len( searchTerm ) ) {
-			var matchText = [
+			var matchFields = [
 				"title^10",
 				"HTMLTitle^6",
 				"HTMLDescription^5",
@@ -74,17 +84,17 @@ component accessors="true" singleton {
 				trim( arguments.searchTerm ),
 				30.00
 			);
-			search.sort( "_score DESC" );
+			builder.sort( "_score DESC" );
 		} else {
-			search.sort( "createdTime DESC" );
+			builder.sort( "publishedDate DESC" );
 		}
 
-		var results = build.execute();
+		var results = builder.execute();
 
 		try {
 			// populate the search results
 			searchResults.populate( {
-				results    : results.getHits(),
+				results    : results.getHits().map( function( doc ){ return doc.getMemento(); } ),
 				total      : results.getHitCount(),
 				searchTime : getTickCount() - sTime,
 				searchTerm : arguments.searchTerm,
@@ -115,6 +125,7 @@ component accessors="true" singleton {
 		numeric offset = 0
 	){
 		var searchResults = search( argumentCollection = arguments );
+		variables.requestService.getContext().setPrivateValue( "searchResults", searchResults );
 		return renderSearchWithResults( searchResults );
 	}
 
