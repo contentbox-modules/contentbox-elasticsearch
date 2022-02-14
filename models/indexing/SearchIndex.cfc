@@ -97,9 +97,10 @@ component {
 		var baseProcessor = "
 			if( ctx.attachment != null && ctx.attachment.content != null ){
 				ctx.content = ctx.attachment.content;
-				ctx.title = ctx.attachment.title;
+				if( ctx.attachment.title != null ){ ctx.title = ctx.attachment.title; }
 				ctx.creator = ctx.attachment.author;
-				ctx.createdDate = ctx.attachment.date + 'T00:00:00+00:00';
+				ctx.createdDate = ctx.attachment.date;
+				ctx.publishedDate = ctx.attachment.date;
 				ctx.remove( 'attachment' );
 			}
 			if( ctx.blob != null ){
@@ -111,24 +112,6 @@ component {
 			ctx.meta.lastSerializedTime = new SimpleDateFormat( ""yyyy-MM-dd'T'HH:mm:ssXXX"" ).format(new Date());
         ";
 
-		wirebox
-			.getInstance( "Pipeline@cbElasticsearch" )
-			.new( {
-				"id"          : variables.moduleSettings.pipeline,
-				"description" : "Pipeline for ingesting contentbox content items",
-				"version"     : 1,
-				"processors"  : [
-					{
-						"script" : {
-							"lang"   : "painless",
-							"source" : reReplace( baseProcessor, "\n|\r|\t", "", "ALL" )
-						}
-					}
-				]
-			} )
-			.save();
-
-
 
 		// media ingest pipeline
 		if ( moduleSettings.ingestMedia ) {
@@ -136,8 +119,8 @@ component {
 				wirebox
 					.getInstance( "Pipeline@cbElasticsearch" )
 					.new( {
-						"id"          : variables.moduleSettings.pipeline & "_media",
-						"description" : "Pipeline for ingesting contentbox media for textual search",
+						"id"          : variables.moduleSettings.pipeline,
+						"description" : "Pipeline for ingesting contentbox content and media for textual search",
 						"version"     : 1,
 						"processors"  : [
 							{ "attachment" : { "ignore_missing" : true, "field" : "blob" } },
@@ -159,6 +142,24 @@ component {
 			} catch ( any e ) {
 				rethrow;
 			}
+
+		} else {
+			wirebox
+				.getInstance( "Pipeline@cbElasticsearch" )
+				.new( {
+					"id"          : variables.moduleSettings.pipeline,
+					"description" : "Pipeline for ingesting contentbox content items",
+					"version"     : 1,
+					"processors"  : [
+						{
+							"script" : {
+								"lang"   : "painless",
+								"source" : reReplace( baseProcessor, "\n|\r|\t", "", "ALL" )
+							}
+						}
+					]
+				} )
+				.save();
 		}
 
 		return this;

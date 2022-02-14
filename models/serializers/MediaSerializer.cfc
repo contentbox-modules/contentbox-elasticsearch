@@ -1,18 +1,23 @@
 component {
-
-	property name="newDocument"    inject="provider:Document@cbelasticsearch";
 	property name="moduleSettings" inject="coldbox:moduleSettings:contentbox-elasticsearch";
 	property name="settingService" inject="settingService@contentbox";
 	property name="esClient"       inject="Client@cbelasticsearch";
 	property name="wirebox"        inject="wirebox";
+
+	variables.dateFormatter = createObject( "java", "java.text.SimpleDateFormat" ).init(
+		"yyyy-MM-dd'T'HH:mm:ssXXX"
+	);
+
+	function newDocument() provider="Document@cbelasticsearch"{}
 
 	/**
 	 * Serializes an individual media item with a provided path
 	 *
 	 * @mediaPath
 	 * @memento   an optional memento of fields to add to the serialized document
+	 * @refresh   whether to wait for the document to be saved and re-indexed
 	 */
-	function serialize( required string mediaPath, struct memento = {} ){
+	struct function serialize( required string mediaPath, struct memento = {}, refresh=false ){
 		if ( !fileExists( arguments.mediaPath ) ) {
 			var providedPath    = arguments.mediaPath;
 			arguments.mediaPath = expandPath( arguments.mediaPath );
@@ -26,7 +31,8 @@ component {
 			}
 		}
 
-		var mediaDirectory = expandPath( settingService.getSetting( "cb_media_directoryRoot" ) );
+		var isExpandedPath = findNoCase( expandPath( '/' ), arguments.mediaPath );
+		var mediaDirectory = isExpandedPath ? expandPath( settingService.getSetting( "cb_media_directoryRoot" ) ) : settingService.getSetting( "cb_media_directoryRoot" );
 		var mediaURL       = replace(
 			arguments.mediaPath,
 			mediaDirectory,
@@ -43,10 +49,19 @@ component {
 		structAppend(
 			arguments.memento,
 			{
-				contentType        : "File",
+				"title"            : listLast( arguments.mediaPath, "\/" ),
+				"contentType"      : "File",
+				"excerpt"          : "",
+				"content"          : "",
 				"featuredImage"    : arguments.mediaPath,
 				"featuredImageURL" : mediaURL,
-				"blob"             : toBase64( fileReadBinary( arguments.mediaPath ) )
+				"blob"             : toBase64( fileReadBinary( arguments.mediaPath ) ),
+				"isPublished" : javacast( "boolean", true ),
+				"isDeleted" : javacast( "boolean", false ),
+				"showInSearch" : javacast( "boolean", true ),
+				"expireDate" : dateFormatter.format( dateAdd( "y", 100, now() ) ),
+				"createdDate" : dateFormatter.format( now() ),
+				"publishedDate" : dateFormatter.format( now() )
 			},
 			true
 		);
@@ -55,15 +70,18 @@ component {
 			.setIndex( moduleSettings.searchIndex )
 			.setPipeline( variables.moduleSettings.pipeline )
 			.populate( arguments.memento )
-			.save();
+			.save( refresh = arguments.refresh );
+
+		return { "contentID" : memento.contentID, "path" : arguments.mediaPath };
 	}
 
 	/**
 	 * Serializes all media in the
 	 *
 	 * @directory An optional directory to restrict serialization to
+	 * @refresh   whether to wait for the document to be saved and re-indexed
 	 */
-	function serializeAll( directory ){
+	array function serializeAll( directory, refresh=false ){
 		var searchPath       = arguments.directory ?: moduleSettings.ingestBaseDirectory;
 		var searchExtensions = moduleSettings.ingestExtensionFilter;
 
@@ -76,33 +94,33 @@ component {
 			"file"
 		);
 
-		if ( !eligibleMedia.len() ) ;
-
 		// We have to ingest each media item in its own request or we could overload the ES server
-		var ops = eligibleMedia.each( function( path ){
-			this.serialize(
+		return eligibleMedia.map( function( path ){
+			return this.serialize(
 				path,
 				{
 					"_id"       : hash( arguments.path ),
 					"contentID" : hash( arguments.path ),
 					"siteID"    : getSiteIDFromPath( arguments.path )
-				}
+				},
+				refresh
 			);
 		} );
 	}
 
 	function getSiteIDFromPath( required string path ){
-		var mediaDirectory = expandPath( settingService.getSetting( "cb_media_directoryRoot" ) );
+		var isExpandedPath = findNoCase( expandPath( '/' ), arguments.path );
+		var mediaDirectory = isExpandedPath ? expandPath( settingService.getSetting( "cb_media_directoryRoot" ) ) : settingService.getSetting( "cb_media_directoryRoot" );
 		var sitePath       = replace( path, mediaDirectory, "" );
-		siteSlug           = listFirst( sitePath );
+		siteSlug           = listGetAt( sitePath, 2, "\/" );
 		var mediaSite      = wirebox
 			.getInstance( "SiteService@contentbox" )
 			.newCriteria()
-			.where( "slug", siteSlug )
+			.isEq( "slug", siteSlug )
 			.withProjections( property = "siteID" )
 			.asStruct()
 			.get();
-		return !isNull( mediaSite ) && !structIsEmpty( mediaSite ) ? mediaSite[ "siteID" ] : javacast( "null", 0 );
+		return !isNull( mediaSite ) && !structIsEmpty( mediaSite ) ? mediaSite[ "siteID" ] : "";
 	}
 
 }

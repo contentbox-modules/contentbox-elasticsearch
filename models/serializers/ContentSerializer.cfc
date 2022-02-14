@@ -24,8 +24,9 @@ component {
 	 * Serializes an individual content entity
 	 *
 	 * @entity
+	 * @refresh   whether to wait for the document to be saved and re-indexed
 	 */
-	function serialize( required BaseContent entity, refresh = false ){
+	string function serialize( required BaseContent entity, refresh = false ){
 		if ( !arguments.entity.isLoaded() ) {
 			throw(
 				type    = "ESContentBox.unloadedEntityException",
@@ -77,12 +78,15 @@ component {
 			.setPipeline( variables.moduleSettings.pipeline )
 			.populate( memento )
 			.save( arguments.refresh );
+
+		return memento.contentID;
 	}
 
 	/**
 	 * Bulk serializes all content in the system
 	 *
 	 * @criteria An optional restrictive criteria query to pass in
+	 * @refresh   whether to wait for the bulk operation to complete re-indexing before returning a result
 	 */
 	function serializeAll( criteria, refresh = false ){
 		var projectionIncludes = [
