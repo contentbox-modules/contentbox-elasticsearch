@@ -10,7 +10,6 @@ component extends="tests.resources.BaseTest" {
 		super.beforeAll();
 		variables.model = prepareMock( new escontentbox.models.serializers.MediaSerializer() );
 		getWirebox().autowire( variables.model );
-		variables.searchClient.deleteIndex( variables.moduleSettings.searchIndex );
 		if ( !variables.searchClient.indexExists( variables.moduleSettings.searchIndex ) ) {
 			getWirebox()
 				.getInstance( "SearchIndex@escontentbox" )
