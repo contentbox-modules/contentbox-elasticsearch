@@ -7,6 +7,8 @@ component extends="tests.resources.BaseTest" {
 
 	// executes before all suites+specs in the run() method
 	function beforeAll(){
+		super.beforeAll();
+		variables.model = new escontentbox.models.mapping.SearchIndexMapping();
 	}
 
 	// executes after all suites+specs in the run() method
@@ -17,9 +19,9 @@ component extends="tests.resources.BaseTest" {
 
 	function run( testResults, testBox ){
 		// all your suites go here.
-		describe( "My First Suite", function(){
-			it( "A Spec", function(){
-				fail( "implement" );
+		describe( "Mapping Object Tests", function(){
+			it( "Tests the ability to retrieve the config", function(){
+				expect( variables.model.getConfig() ).toBeStruct().toHaveKey( "mappings" );
 			} );
 		} );
 	}

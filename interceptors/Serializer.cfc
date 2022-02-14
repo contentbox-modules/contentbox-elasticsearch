@@ -8,15 +8,14 @@ component {
 	/**
 	 * ContentBox Post File Upload Interception Event
 	 *
-	 * @event        
+	 * @event
 	 * @interceptData
 	 */
 	function fb_postFileUpload( event, interceptData ){
-		var eligibleExtensions = moduleSettings.ingestExtensionFilter
-			.toArray( "|" )
-			.map( function( filter ){
-				return listLast( filter, "." )
-			} );
+		var eligibleExtensions = listToArray( moduleSettings.ingestExtensionFilter, "|" )
+									.map( function( filter ){
+										return listLast( filter, "." )
+									} );
 		if (
 			moduleSettings.ingestMedia &&
 			interceptData.keyExists( "path" ) &&
@@ -26,11 +25,28 @@ component {
 		}
 	}
 
+	/**
+	 * ContentBox Pre File Delete Interception
+	 *
+	 * @event
+	 * @interceptData
+	 */
+	function fb_preFileRemoval( event, interceptData ){
+		if (
+			moduleSettings.ingestMedia &&
+			interceptData.keyExists( "path" )
+		) {
+			var searchBuilder = getInstance( "SearchBuilder@cbelasticsearch" )
+									.new( variables.moduleSettings.searchIndex )
+									.term( "contentID", hash( interceptData.path ) );
+			getInstance( "Client@cbelasticsearch" ).deleteByQuery( searchBuilder );
+		}
+	}
 
 	/**
 	 * ORM Post-Insert Interception Event
 	 *
-	 * @event        
+	 * @event
 	 * @interceptData
 	 */
 	function ORMPostInsert( event, interceptData ){
@@ -40,22 +56,42 @@ component {
 	/**
 	 * ORM Post-Save Interception Event
 	 *
-	 * @event        
+	 * @event
 	 * @interceptData
 	 */
 	function ORMPostSave( event, interceptData ){
 		return postPersist( argumentCollection = arguments );
 	}
 
+	function ORMPreDelete( event, interceptData ){
+		if (
+			isInstanceOf( interceptData.entity, "BaseContent" )
+			&& variables.moduleSettings.contentTypes.contains(
+				interceptData.entity.getContentType()
+			)
+		) {
+			getInstance( "Client@cbelasticsearch" ).deleteByQuery(
+				getInstance( "SearchBuilder@cbElasticsearch" )
+						.new( variables.moduleSettings.searchIndex )
+						.term(
+							"contentID",
+							interceptData.entity.getContentID()
+						),
+				true
+			);
+		}
+	}
+
 	/**
 	 * Handles the post-persistence of content items for serialization to elasticsearch
 	 *
-	 * @event        
+	 * @event
 	 * @interceptData
 	 */
 	private function postPersist( event, interceptData ){
 		if (
-			isInstanceOf( interceptData.entity, "BaseContent" ) && variables.moduleSettings.contentTypes.contains(
+			isInstanceOf( interceptData.entity, "BaseContent" )
+			&& variables.moduleSettings.contentTypes.contains(
 				interceptData.entity.getContentType()
 			)
 		) {

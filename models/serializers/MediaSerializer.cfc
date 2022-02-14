@@ -58,6 +58,7 @@ component {
 				"content"          : "",
 				"featuredImage"    : arguments.mediaPath,
 				"featuredImageURL" : mediaURL,
+				"slug"             : mediaURL,
 				"blob"             : toBase64( fileReadBinary( arguments.mediaPath ) ),
 				"isPublished" : javacast( "boolean", true ),
 				"isDeleted" : javacast( "boolean", false ),
