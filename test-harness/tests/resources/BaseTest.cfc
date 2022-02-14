@@ -43,16 +43,4 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/root" autow
 		structDelete( application, "cbController" );
 	}
 
-	function withRollback( target ){
-		transaction{
-			try{
-				arguments.target();
-			} catch( any e ){
-				rethrow;
-			} finally{
-				transaction action="rollback";
-			}
-		}
-	}
-
 }

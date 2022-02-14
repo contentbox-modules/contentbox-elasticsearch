@@ -15,6 +15,7 @@ component accessors="true" {
 					"contentID"    : { "type" : "keyword" },
 					"parentID"     : { "type" : "keyword" },
 					"siteID"       : { "type" : "keyword" },
+					"contentType"  : { "type" : "keyword" },
 					"slug"         : { "type" : "keyword" },
 					"SSLOnly"      : { "type" : "boolean" },
 					"isPublished"  : { "type" : "boolean" },

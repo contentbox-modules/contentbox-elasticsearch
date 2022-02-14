@@ -10,6 +10,7 @@ component extends="tests.resources.BaseTest" {
 		super.beforeAll();
 		variables.model = prepareMock( new escontentbox.models.serializers.MediaSerializer() );
 		getWirebox().autowire( variables.model );
+		variables.searchClient.deleteIndex( variables.moduleSettings.searchIndex );
 		if ( !variables.searchClient.indexExists( variables.moduleSettings.searchIndex ) ) {
 			getWirebox()
 				.getInstance( "SearchIndex@escontentbox" )
@@ -39,7 +40,7 @@ component extends="tests.resources.BaseTest" {
 				var searchQuery = newSearchBuilder()
 					.setIndex( variables.moduleSettings.searchIndex )
 					.setQuery( { "match_all" : {} } );
-				variables.searchClient.deleteByQuery( searchQuery );
+				variables.searchClient.deleteByQuery( searchQuery, true );
 			} );
 
 			it( "Tests the ability to serialize a single content item", function(){
@@ -86,7 +87,7 @@ component extends="tests.resources.BaseTest" {
 
 				var searchCount = newSearchBuilder()
 					.new( index = variables.moduleSettings.searchIndex )
-					.setQuery( { "match_all" : {} } )
+					.term( "contentType", "File" )
 					.count();
 
 				expect( serializationResult.len() ).toBe( searchCount );

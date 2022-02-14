@@ -18,7 +18,11 @@ component {
 	 * @refresh   whether to wait for the document to be saved and re-indexed
 	 */
 	struct function serialize( required string mediaPath, struct memento = {}, refresh=false ){
-		if ( !fileExists( arguments.mediaPath ) ) {
+
+		// We need to ensure our path is always expanded so that key names remain consistent
+		var isExpandedPath = findNoCase( expandPath( settingService.getSetting( "cb_media_directoryRoot" ) ), arguments.mediaPath );
+
+		if ( !fileExists( arguments.mediaPath ) || !isExpandedPath ) {
 			var providedPath    = arguments.mediaPath;
 			arguments.mediaPath = expandPath( arguments.mediaPath );
 
@@ -31,8 +35,7 @@ component {
 			}
 		}
 
-		var isExpandedPath = findNoCase( expandPath( '/' ), arguments.mediaPath );
-		var mediaDirectory = isExpandedPath ? expandPath( settingService.getSetting( "cb_media_directoryRoot" ) ) : settingService.getSetting( "cb_media_directoryRoot" );
+		var mediaDirectory = expandPath( settingService.getSetting( "cb_media_directoryRoot" ) );
 		var mediaURL       = replace(
 			arguments.mediaPath,
 			mediaDirectory,

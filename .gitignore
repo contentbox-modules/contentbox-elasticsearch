@@ -11,8 +11,7 @@ test-harness/docbox/**
 test-harness/testbox/**
 test-harness/logs/**
 test-harness/modules/**
-
-config/logs/**
+test-harness/config/logs
 
 # Workbench items
 docker/mysql/tmp
