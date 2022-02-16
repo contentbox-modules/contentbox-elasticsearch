@@ -123,7 +123,7 @@ component extends="tests.resources.BaseTest" {
 				var event = getMockRequestContext();
 				var interceptData = { "entity" : testEntity };
 				variables.model.ORMPreDelete( event, interceptData );
-				sleep( 500 );
+				sleep( 1000 );
 				expect(
 					getInstance( "SearchBuilder@cbelasticsearch" )
 						.new( variables.moduleSettings.searchIndex )

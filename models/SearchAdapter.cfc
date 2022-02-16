@@ -137,7 +137,9 @@ component accessors="true" singleton {
 	any function renderSearchWithResults( required SearchResults searchResults ){
 		resultViewArgs           = duplicate( variables.moduleSettings.resultsTemplate );
 		resultViewArgs[ "args" ] = { "results" : arguments.searchResults };
-		return renderer.renderView( argumentCollection = resultViewArgs );
+		return resultViewArgs.isThemeView
+				? vairiables.cb.quickView( argumentCollection=resultViewArgs )
+				: renderer.renderView( argumentCollection = resultViewArgs );
 	}
 
 }

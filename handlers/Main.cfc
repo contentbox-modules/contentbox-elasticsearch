@@ -17,8 +17,8 @@ component {
 		event.setView( "main/indices" );
 	}
 
-	function metrics( event, rc, prc ){
-		event.setView( "main/metrics" );
+	function serialization( event, rc, prc ){
+		event.setView( "main/serialization" );
 	}
 
 }

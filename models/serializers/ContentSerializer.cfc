@@ -26,7 +26,7 @@ component {
 	 * @entity
 	 * @refresh   whether to wait for the document to be saved and re-indexed
 	 */
-	string function serialize( required BaseContent entity, refresh = false ){
+	struct function serialize( required BaseContent entity, refresh = false ){
 		if ( !arguments.entity.isLoaded() ) {
 			throw(
 				type    = "ESContentBox.unloadedEntityException",
@@ -55,7 +55,7 @@ component {
 			"publishedDate",
 			"showInSearch",
 			"site.siteID:siteID",
-			"parent.contentID:parentID",
+			"parentID",
 			"excerpt",
 			"renderedContent:content"
 		];
@@ -73,14 +73,18 @@ component {
 		if ( isStruct( memento.creator ) ) {
 			memento.creator = memento.creator.creator;
 		}
+		if( memento.keyExists( "site" ) && isStruct( memento.site ) ){
+			memento[ "siteID" ] = memento.site.siteID;
+			structDelete( memento, "site" );
+		}
 
-		variables.newDocument
+		var doc = variables.newDocument
 			.setIndex( moduleSettings.searchIndex )
 			.setPipeline( variables.moduleSettings.pipeline )
 			.populate( memento )
 			.save( arguments.refresh );
 
-		return memento.contentID;
+		return doc.getMemento();
 	}
 
 	/**

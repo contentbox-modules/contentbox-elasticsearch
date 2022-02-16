@@ -178,6 +178,9 @@ component {
 		 * }
 		 */
 		moduleSettings = {
+			"escontentbox" : {
+				"ingestMedia" : true
+			},
 			/**
 			 * ColdBox cborm configurations https://forgebox.io/view/cborm
 			 */

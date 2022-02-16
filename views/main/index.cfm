@@ -1,8 +1,13 @@
 <cfoutput>
-	#getInstance( "Processor@cbmarkdown" ).toHTML( fileRead( expandPath( "/escontentbox/README.md" ) ) )#
-	<ul class="list-unstyled text-center">
-		<li><a href="#adminMenuService.buildModuleLink( "contentbox-elasticsearch", "Main.configuration" )#">Configuration</a></li>
-		<li><a href="#adminMenuService.buildModuleLink( "contentbox-elasticsearch", "Main.indices" )#">Indexing</a></li>
-		<li><a href="#adminMenuService.buildModuleLink( "contentbox-elasticsearch", "Main.metrics" )#">Metrics</a></li>
-	</ul>
+	#renderView( view="main/inc/adminNav", module="contentbox-elasticsearch" )#
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel panel-default">
+				<!--- Panel Content --->
+				<div class="panel-body">
+					#getInstance( "Processor@cbmarkdown" ).toHTML( fileRead( expandPath( "/escontentbox/README.md" ) ) )#
+				</div>
+			</div>
+		</div>
+	</div>
 </cfoutput>

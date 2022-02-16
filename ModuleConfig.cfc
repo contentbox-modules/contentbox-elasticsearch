@@ -31,18 +31,23 @@ component {
 		// module settings - stored in modules.name.settings
 		settings = {
 			"version" : this.version,
+			// The search index alias where the this ContentBox's data will be stored
 			"searchIndex" : "contentbox-content",
+			// The name of the pipeline used to handle the ingest of documents and media ( if enabled )
 			"pipeline" : "contentbox_content",
+			// The content types to serialize for search
 			"contentTypes" : [ "Page", "Entry" ],
 			// Whether to ingest media items
-			"ingestMedia" : true,
+			"ingestMedia" : false,
 			// CF directoryList exension filter
 			"ingestExtensionFilter" : "*.pdf|*.doc|*.docx",
 			// The directory for which to search for ingestable media
 			"ingestBaseDirectory" : "/contentbox-custom/_content",
+			// The template to use for displaying the search results
 			"resultsTemplate" : {
 				"module" : "contentbox-elasticsearch",
-				"view" : "search/results"
+				"view" : "search/results",
+				"isThemeView" : false
 			}
 		};
 
@@ -51,8 +56,13 @@ component {
 			{ class="escontentbox.interceptors.Serializer" }
 		];
 
-		// Binder Mappings
-		// binder.map("Alias").to("#moduleMapping#.models.MyService");
+		variables.settingService = controller.getWireBox().getInstance( "SettingService@contentbox" );
+
+		var dbSetting = settingService.findWhere( criteria = { name : "escontentbox", isCore : true } );
+
+		if( !isNull( dbSetting ) && isJSON( dbSetting.getValue() ) ){
+			structAppend( settings, deserializeJSON( dbSetting.getValue() ), true );
+		}
 
 	}
 
@@ -60,17 +70,12 @@ component {
 	 * Fired when the module is registered and activated.
 	 */
 	function onLoad(){
+
 		try{
 			controller.getWirebox().getInstance( "SearchIndex@escontentbox" ).ensureSearchIndex().ensurePipelines();
 		} catch( any e ){
 			controller.getLogbox().getRootLogger().error( "An attempt to create the elasticsearch index #settings.searchIndex# was made but an error occurred. The exception was #e.message#:#e.detail#" );
 		}
-	}
-
-	/**
-	 * Fired when the module is activated by ContentBox
-	 */
-	function onActivate(){
 
 		// Add Admin Menu section
 		var menuService = controller.getWireBox().getInstance( "AdminMenuService@contentbox" );
@@ -81,6 +86,26 @@ component {
 			label   = "Elasticsearch",
 			href    = "#menuService.buildModuleLink( "contentbox-elasticsearch", "Main" )#"
 		);
+	}
+
+	/**
+	 * Fired when the module is activated by ContentBox
+	 */
+	function onActivate(){
+
+		var settingExists = variables.settingService.newCriteria()
+														.isEq( "name", "escontentbox" )
+														.isEq( "isCore", javacast( "boolean", true ) )
+														.count();
+
+		if( !settingExists ){
+			var setting = variables.settingService.new( properties={
+				"name" : "escontentbox",
+				"isCore" : javacast( "boolean", true ),
+				"value" : controller.getWireBox().getInstance( "Util@cbelasticsearch" ).toJSON( settings )
+			} );
+			variables.settingService.save( setting );
+		}
 	}
 
 	/**
@@ -103,5 +128,17 @@ component {
 		var menuService = controller.getWireBox().getInstance( "AdminMenuService@contentbox" );
 		// Remove Menu Contribution
 		menuService.removeSubMenu( topMenu = menuService.MODULES, name = "Elasticsearch" );
+
+		var dbSetting = settingService.findWhere( criteria = { name : "escontentbox" } );
+
+		if ( !isNull( dbSetting ) ) {
+			settingService.delete( dbSetting );
+		}
+
+		// Restore our original search adapter
+		var adapterSetting = settingService.findWhere( criteria = { name : "cb_search_adapter", isCore : true } );
+		adapterSetting.setValue( "DBSearch@contentbox" );
+		settingService.save( adapterSetting );
+
 	}
 }
