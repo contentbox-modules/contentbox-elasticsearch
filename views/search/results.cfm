@@ -7,7 +7,7 @@
 			<a href="/#result.slug#" class="panel-title">#result.title#</a>
 			</div>
 			<div class="panel-body">
-				<p>#highlightSearchTerm( args.results.getSearchTerm(), truncate( text=stripHTML( !isNull( result.excerpt ) && len( result.excerpt ) ? result.excerpt : result.content ), stop=30, delimiter=" " ) )#</p>
+				<p>#highlightSearchTerm( args.results.getSearchTerm(), truncate( text=stripHTML( !isNull( result.excerpt ) && len( result.excerpt ) ? result.excerpt : result.content ), stop=100, delimiter=" " ) )#</p>
 			</div>
 			<cfif result.categories.len()>
 				<div class="panel-footer">
