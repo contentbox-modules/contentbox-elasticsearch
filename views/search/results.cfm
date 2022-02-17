@@ -29,7 +29,12 @@
 				</h4>
 			</div>
 			<div class="panel-body">
-				<p>#highlightSearchTerm( args.results.getSearchTerm(), truncate( text=stripHTML( !isNull( result.excerpt ) && len( result.excerpt ) ? result.excerpt : result.content ), stop=100, delimiter=" " ) )#</p>
+				<p>
+					<cfif result.contentType != "File" && structKeyExists( result, "featuredImageURL" ) && len( result.featuredImageURL ) >
+						<img class="image-responsive hidden-xs" style="float:left; margin-right: 15px; margin-bottom: 15px; max-height:80px; max-width: 80px"  src="#result.featuredImageURL#">
+					</cfif>
+					#highlightSearchTerm( args.results.getSearchTerm(), truncate( text=stripHTML( !isNull( result.excerpt ) && len( result.excerpt ) ? result.excerpt : result.content ), stop=100, delimiter=" " ) )#
+				</p>
 			</div>
 			<cfif result.categories.len()>
 				<div class="panel-footer">
