@@ -9,8 +9,8 @@
 			mediaDirectoryExpanded : '#expandPath( args.mediaDirectory )#',
 			serializationQueue : [],
 			isLoading : false,
-			isSerializingMedia : false,
-			isSerializingContent : true,
+			isSerializingFile : false,
+			isSerializingContent : false,
 			ingestMedia : false,
 			isSerializing( identifier ){
 				return this.serializationQueue.findIndex( identifier );
@@ -30,22 +30,24 @@
 						);
 						self.isLoading = false;
 						self.$nextTick(
-							() => window.$( "[data-toggle='tooltip']" ).each( function(){
-								window.$( this ).tooltip( {
-									animation : "slide",
-									delay     : { show: 100, hide: 100 }
-								} );
-								$( 'table.table-hover' ).each( function(){
-									$( this ).dataTable( {
-										bFilter: false,
-										bInfo: false,
-										"bLengthChange": false,
-										"pageLength": 25,
-										"ordering": false,
-										"searching": true
-									} )
-								} );
-							});
+							() => {
+								window.$( "[data-toggle='tooltip']" ).each( function(){
+									window.$( this ).tooltip( {
+										animation : "slide",
+										delay     : { show: 100, hide: 100 }
+									} );
+								});
+								// window.$( 'table.table.table-hover' ).each( function(){
+								// 	window.$( this ).dataTable( {
+								// 		bFilter: false,
+								// 		bInfo: false,
+								// 		"bLengthChange": false,
+								// 		"pageLength": 25,
+								// 		"ordering": false,
+								// 		"searching": true
+								// 	} );
+								// } );
+							}
 						)
 					}
 				)

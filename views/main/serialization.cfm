@@ -27,7 +27,7 @@
 					<!--- Loader --->
 					<template x-if="isLoading">
 						<div class="text-center m20">
-							<i class="fas fa-spinner fa-spin fa-lg"></i><br/>
+							<i class="fas fa-spinner fa-spin fa-lg"></i> Loading serialization information...<br/>
 						</div>
 					</template>
 					<template x-if="!isLoading">
@@ -69,43 +69,45 @@
 								<div class="col-md-8">
 									<h3 class="text-muted">Serialized ContentBox Content</h3>
 									<template x-if="esContentCount == 0">
-										<div class="alert alert-warning text-center" x-show="">
+										<div class="alert alert-warning text-center">
 											<p>
 												No content has yet been serialized to the Elasticsearch index.  Would you like to serialize all content items now?
 											</p>
 											<button type="button" class="btn btn-primary" @click="serialize( 'Content' )">
-												<i class="fa" x-bind:class="this.isSerializingContent ? 'fa-spin fa-spinner' : 'fa-gears'"></i>
+												<i class="fa" x-bind:class="{ 'fa-spin fa-spinner' : isSerializingContent, 'fa-upload' : !isSerializingContent }"></i>
 												Yes, Serialize All Content Now
 											</button>
 										</div>
 									</template>
-									<template x-else>
-										<table class="table table-striped table-hover">
-											<thead>
-												<tr>
-													<th>Content Title</th>
-													<th>Content Type</th>
-													<th></th>
-												</tr>
-											</thead>
-											<tbody>
-												<template x-for="( contentItem ) in serializedDbContent">
+									<template x-if="esContentCount">
+										<div>
+											<table class="table table-striped table-hover">
+												<thead>
 													<tr>
-														<td><a x-bind:href="'/'+contentItem.slug" x-text="contentItem.title" target="_blank"></a></td>
-														<td x-text="contentItem.contentType"></td>
-														<td>
-															<a @click="serialize( contentItem.contentType, contentItem.contentID )" class="text-muted"><i class="fa fa-upload" data-toggle="tooltip" x-bind:title="'Re-Serialize ' + contentItem.title"></i></a>
-															<a @click="unserialize( contentItem.contentType, contentItem.contentID )" class="text-muted"><i class="fa fa-trash" data-toggle="tooltip" title="Delete this Content item from the index"></i></a>
-														</td>
+														<th>Content Title</th>
+														<th>Content Type</th>
+														<th></th>
 													</tr>
-												</template>
-												<template x-if="!serializedDbContent.length">
-													<tr>
-														<td colspan="3"><p class="text-muted"><em>No content items are currently serialized in the index.</em></p></td>
-													</tr>
-												</template>
-											</tbody>
-										</table>
+												</thead>
+												<tbody>
+													<template x-for="( contentItem ) in serializedDbContent">
+														<tr>
+															<td><a x-bind:href="'/'+contentItem.slug" x-text="contentItem.title" target="_blank"></a></td>
+															<td x-text="contentItem.contentType"></td>
+															<td>
+																<a @click="serialize( contentItem.contentType, contentItem.contentID )" class="text-muted"><i class="fa fa-upload" data-toggle="tooltip" x-bind:title="'Re-Serialize ' + contentItem.title"></i></a>
+																<a @click="unserialize( contentItem.contentType, contentItem.contentID )" class="text-muted"><i class="fa fa-trash" data-toggle="tooltip" title="Delete this Content item from the index"></i></a>
+															</td>
+														</tr>
+													</template>
+													<template x-if="!serializedDbContent.length">
+														<tr>
+															<td colspan="3"><p class="text-muted"><em>No content items are currently serialized in the index.</em></p></td>
+														</tr>
+													</template>
+												</tbody>
+											</table>
+										</div>
 									</template>
 								</div>
 							</div>
@@ -151,38 +153,40 @@
 												No media has yet been serialized to the Elasticsearch index.  Would you like to serialize all <span x-text="eligibleMedia.length"></span> media items now?
 											</p>
 											<button type="button" class="btn btn-primary" @click="serialize( 'File' )">
-												<i class="fa" x-bind:class="this.isSerializingMedia ? 'fa-spin fa-spinner' : 'fa-gears'"></i>
+												<i class="fa" x-bind:class="{ 'fa-spin fa-spinner' : isSerializingFile, 'fa-upload' : !isSerializingFile }"></i>
 												Yes, Serialize All Media Now
 											</button>
 										</div>
 									</template>
-									<template x-else>
-										<table class="table table-striped table-hover">
-											<thead>
-												<tr>
-													<th>Content Title</th>
-													<th>Content Type</th>
-													<th></th>
-												</tr>
-											</thead>
-											<tbody>
-												<template x-for="( mediaItem ) in serializedMedia">
+									<template x-if="esMediaCount">
+										<div>
+											<table class="table table-striped table-hover">
+												<thead>
 													<tr>
-														<td><a x-bind:href="'/'+mediaItem.slug" x-text="mediaItem.featuredImage.split( '\/' ).pop()" target="_blank"></a></td>
-														<td x-text="mediaItem.featuredImage.split( '\/' ).pop().split( '.' ).pop().toUpperCase()"></td>
-														<td>
-															<a @click="serialize( mediaItem.contentType, mediaItem.featuredImage )" class="text-muted"><i class="fa fa-upload" data-toggle="tooltip" x-bind:title="'Re-Serialize ' + mediaItem.featuredImage.split( '\/' ).pop()"></i></a>
-															<a @click="unserialize( mediaItem.contentType, mediaItem.contentID )" class="text-muted"><i class="fa fa-trash" data-toggle="tooltip" title="Delete this file from the index"></i></a>
-														</td>
+														<th>Content Title</th>
+														<th>Content Type</th>
+														<th></th>
 													</tr>
-												</template>
-												<template x-if="!serializedDbContent.length">
-													<tr>
-														<td colspan="3"><p class="text-muted"><em>No content items are currently serialized in the index.</em></p></td>
-													</tr>
-												</template>
-											</tbody>
-										</table>
+												</thead>
+												<tbody>
+													<template x-for="( mediaItem ) in serializedMedia">
+														<tr>
+															<td><a x-bind:href="'/'+mediaItem.slug" x-text="mediaItem.featuredImage.split( '\/' ).pop()" target="_blank"></a></td>
+															<td x-text="mediaItem.featuredImage.split( '\/' ).pop().split( '.' ).pop().toUpperCase()"></td>
+															<td>
+																<a @click="serialize( mediaItem.contentType, mediaItem.featuredImage )" class="text-muted"><i class="fa fa-upload" data-toggle="tooltip" x-bind:title="'Re-Serialize ' + mediaItem.featuredImage.split( '\/' ).pop()"></i></a>
+																<a @click="unserialize( mediaItem.contentType, mediaItem.contentID )" class="text-muted"><i class="fa fa-trash" data-toggle="tooltip" title="Delete this file from the index"></i></a>
+															</td>
+														</tr>
+													</template>
+													<template x-if="!serializedDbContent.length">
+														<tr>
+															<td colspan="3"><p class="text-muted"><em>No content items are currently serialized in the index.</em></p></td>
+														</tr>
+													</template>
+												</tbody>
+											</table>
+										</div>
 									</template>
 
 								</div>
