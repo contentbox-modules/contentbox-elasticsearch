@@ -72,18 +72,18 @@ component accessors="true" singleton {
 
 		if ( len( searchTerm ) ) {
 			var matchFields = [
-				"title^10",
+				"title^9",
+				"content^8",
 				"HTMLTitle^6",
 				"HTMLDescription^5",
-				"excerpt^4",
-				"creator^3",
-				"content^2"
+				"excerpt",
+				"creator"
 			];
 			builder.multiMatch(
 				matchFields,
 				trim( arguments.searchTerm ),
 				30.00,
-				"phrase"
+				"most_fields"
 			);
 			builder.sort( "_score DESC" );
 		} else {
