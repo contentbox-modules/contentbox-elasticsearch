@@ -82,7 +82,8 @@ component accessors="true" singleton {
 			builder.multiMatch(
 				matchFields,
 				trim( arguments.searchTerm ),
-				30.00
+				30.00,
+				"phrase"
 			);
 			builder.sort( "_score DESC" );
 		} else {
