@@ -41,7 +41,7 @@
 										<li><strong>Serialized Content Items:</strong> <span x-text="esContentCount"></span></li>
 										<li><strong>Content Missing from Index:</strong> <span x-text="dbContentCount-esContentCount"></span></li>
 									</ul>
-									<template x-if="unserializedDbContent().length">
+									<template x-if="esContentCount > 0 && unserializedDbContent().length">
 										<div>
 											<hr>
 											<h3 class="text-muted">Unserialized Content Items</h3>
@@ -58,7 +58,7 @@
 														<tr>
 															<td><a x-bind:href="'/'+contentItem.slug" x-text="contentItem.title" target="_blank"></a></td>
 															<td x-text="contentItem.contentType"></td>
-															<td><a @click="serialize( 'Content', contentItem.contentID )"><i class="fa fa-share" data-toggle="tooltip" x-bind:title="'Serialize' + contentItem.title"></i></a></td>
+															<td><a @click="serialize( 'Content', contentItem.contentID )"><i class="fa fa-upload" data-toggle="tooltip" x-bind:title="'Serialize' + contentItem.title"></i></a></td>
 														</tr>
 													</template>
 												</tbody>
@@ -68,41 +68,45 @@
 								</div>
 								<div class="col-md-8">
 									<h3 class="text-muted">Serialized ContentBox Content</h3>
-									<div class="alert alert-warning text-center" x-show="esContentCount == 0">
-										<p>
-											No content has yet been serialized to the Elasticsearch index.  Would you like to serialize all content items now?
-										</p>
-										<button type="button" class="btn btn-primary" @click="serialize( 'Content' )">
-											<i x-bind:class="[ 'fa', this.isSerializingContent ? 'fa fa-spin fa-spinner' : 'fa-gears']"></i>
-											Yes, Serialize All Content Now
-										</button>
-									</div>
-									<table class="table table-striped table-hover">
-										<thead>
-											<tr>
-												<th>Content Title</th>
-												<th>Content Type</th>
-												<th></th>
-											</tr>
-										</thead>
-										<tbody>
-											<template x-for="( contentItem ) in serializedDbContent">
+									<template x-if="esContentCount == 0">
+										<div class="alert alert-warning text-center" x-show="">
+											<p>
+												No content has yet been serialized to the Elasticsearch index.  Would you like to serialize all content items now?
+											</p>
+											<button type="button" class="btn btn-primary" @click="serialize( 'Content' )">
+												<i class="fa" x-bind:class="this.isSerializingContent ? 'fa-spin fa-spinner' : 'fa-gears'"></i>
+												Yes, Serialize All Content Now
+											</button>
+										</div>
+									</template>
+									<template x-else>
+										<table class="table table-striped table-hover">
+											<thead>
 												<tr>
-													<td><a x-bind:href="'/'+contentItem.slug" x-text="contentItem.title" target="_blank"></a></td>
-													<td x-text="contentItem.contentType"></td>
-													<td>
-														<a @click="serialize( contentItem.contentType, contentItem.contentID )" class="text-muted"><i class="fa fa-share" data-toggle="tooltip" x-bind:title="'Re-Serialize ' + contentItem.title"></i></a>
-														<a @click="unserialize( contentItem.contentType, contentItem.contentID )" class="text-muted"><i class="fa fa-trash" data-toggle="tooltip" title="Delete this Content item from the index"></i></a>
-													</td>
+													<th>Content Title</th>
+													<th>Content Type</th>
+													<th></th>
 												</tr>
-											</template>
-											<template x-if="!serializedDbContent.length">
-												<tr>
-													<td colspan="3"><p class="text-muted"><em>No content items are currently serialized in the index.</em></p></td>
-												</tr>
-											</template>
-										</tbody>
-									</table>
+											</thead>
+											<tbody>
+												<template x-for="( contentItem ) in serializedDbContent">
+													<tr>
+														<td><a x-bind:href="'/'+contentItem.slug" x-text="contentItem.title" target="_blank"></a></td>
+														<td x-text="contentItem.contentType"></td>
+														<td>
+															<a @click="serialize( contentItem.contentType, contentItem.contentID )" class="text-muted"><i class="fa fa-upload" data-toggle="tooltip" x-bind:title="'Re-Serialize ' + contentItem.title"></i></a>
+															<a @click="unserialize( contentItem.contentType, contentItem.contentID )" class="text-muted"><i class="fa fa-trash" data-toggle="tooltip" title="Delete this Content item from the index"></i></a>
+														</td>
+													</tr>
+												</template>
+												<template x-if="!serializedDbContent.length">
+													<tr>
+														<td colspan="3"><p class="text-muted"><em>No content items are currently serialized in the index.</em></p></td>
+													</tr>
+												</template>
+											</tbody>
+										</table>
+									</template>
 								</div>
 							</div>
 							<div class="col-xs-12" x-show="ingestMedia">
@@ -114,7 +118,7 @@
 										<li><strong>Serialized Media Items:</strong> <span x-text="esMediaCount"></span></li>
 										<li><strong>Media Items Missing from Index:</strong> <span x-text="eligibleMedia.length-esMediaCount"></span></li>
 									</ul>
-									<template x-if="unserializedMedia().length">
+									<template x-if="esMediaCount > 0 && unserializedMedia().length">
 										<div>
 											<hr>
 											<h3 class="text-muted">Unserialized Media</h3>
@@ -131,7 +135,7 @@
 														<tr>
 															<td><a x-bind:href="mediaHref( file )" x-text="file.split( '\/' ).pop()" target="_blank"></a></td>
 															<td x-text="file.split( '\/' ).pop().split( '.' ).pop().toUpperCase()"></td>
-															<td><a @click="serialize( 'File', file )"><i class="fa fa-share" data-toggle="tooltip" x-bind:title="'Serialize' + file"></i></a></td>
+															<td><a @click="serialize( 'File', file )"><i class="fa fa-upload" data-toggle="tooltip" x-bind:title="'Serialize' + file"></i></a></td>
 														</tr>
 													</template>
 												</tbody>
@@ -141,41 +145,46 @@
 								</div>
 								<div class="col-md-8">
 									<h3 class="text-muted">Serialized Media</h3>
-									<div class="alert alert-warning text-center" x-show="esMediaCount == 0 && eligibleMedia.length">
-										<p>
-											No media has yet been serialized to the Elasticsearch index.  Would you like to serialize all <span x-text="eligibleMedia.length"></span> media items now?
-										</p>
-										<button type="button" class="btn btn-primary" @click="serialize( 'File' )">
-											<i x-bind:class="[ 'fa', this.isSerializingMedia ? 'fa fa-spin fa-spinner' : 'fa-gears']"></i>
-											Yes, Serialize All Media Now
-										</button>
-									</div>
-									<table class="table table-striped table-hover">
-										<thead>
-											<tr>
-												<th>Content Title</th>
-												<th>Content Type</th>
-												<th></th>
-											</tr>
-										</thead>
-										<tbody>
-											<template x-for="( mediaItem ) in serializedMedia">
+									<template x-if="esMediaCount == 0 && eligibleMedia.length">
+										<div class="alert alert-warning text-center">
+											<p>
+												No media has yet been serialized to the Elasticsearch index.  Would you like to serialize all <span x-text="eligibleMedia.length"></span> media items now?
+											</p>
+											<button type="button" class="btn btn-primary" @click="serialize( 'File' )">
+												<i class="fa" x-bind:class="this.isSerializingMedia ? 'fa-spin fa-spinner' : 'fa-gears'"></i>
+												Yes, Serialize All Media Now
+											</button>
+										</div>
+									</template>
+									<template x-else>
+										<table class="table table-striped table-hover">
+											<thead>
 												<tr>
-													<td><a x-bind:href="'/'+mediaItem.slug" x-text="mediaItem.featuredImage.split( '\/' ).pop()" target="_blank"></a></td>
-													<td x-text="mediaItem.featuredImage.split( '\/' ).pop().split( '.' ).pop().toUpperCase()"></td>
-													<td>
-														<a @click="serialize( mediaItem.contentType, mediaItem.featuredImage )" class="text-muted"><i class="fa fa-share" data-toggle="tooltip" x-bind:title="'Re-Serialize ' + mediaItem.featuredImage.split( '\/' ).pop()"></i></a>
-														<a @click="unserialize( mediaItem.contentType, mediaItem.contentID )" class="text-muted"><i class="fa fa-trash" data-toggle="tooltip" title="Delete this file from the index"></i></a>
-													</td>
+													<th>Content Title</th>
+													<th>Content Type</th>
+													<th></th>
 												</tr>
-											</template>
-											<template x-if="!serializedDbContent.length">
-												<tr>
-													<td colspan="3"><p class="text-muted"><em>No content items are currently serialized in the index.</em></p></td>
-												</tr>
-											</template>
-										</tbody>
-									</table>
+											</thead>
+											<tbody>
+												<template x-for="( mediaItem ) in serializedMedia">
+													<tr>
+														<td><a x-bind:href="'/'+mediaItem.slug" x-text="mediaItem.featuredImage.split( '\/' ).pop()" target="_blank"></a></td>
+														<td x-text="mediaItem.featuredImage.split( '\/' ).pop().split( '.' ).pop().toUpperCase()"></td>
+														<td>
+															<a @click="serialize( mediaItem.contentType, mediaItem.featuredImage )" class="text-muted"><i class="fa fa-upload" data-toggle="tooltip" x-bind:title="'Re-Serialize ' + mediaItem.featuredImage.split( '\/' ).pop()"></i></a>
+															<a @click="unserialize( mediaItem.contentType, mediaItem.contentID )" class="text-muted"><i class="fa fa-trash" data-toggle="tooltip" title="Delete this file from the index"></i></a>
+														</td>
+													</tr>
+												</template>
+												<template x-if="!serializedDbContent.length">
+													<tr>
+														<td colspan="3"><p class="text-muted"><em>No content items are currently serialized in the index.</em></p></td>
+													</tr>
+												</template>
+											</tbody>
+										</table>
+									</template>
+
 								</div>
 							</div>
 						</div>

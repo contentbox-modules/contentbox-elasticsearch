@@ -35,7 +35,17 @@
 									animation : "slide",
 									delay     : { show: 100, hide: 100 }
 								} );
-							})
+								$( 'table.table-hover' ).each( function(){
+									$( this ).dataTable( {
+										bFilter: false,
+										bInfo: false,
+										"bLengthChange": false,
+										"pageLength": 25,
+										"ordering": false,
+										"searching": true
+									} )
+								} );
+							});
 						)
 					}
 				)
