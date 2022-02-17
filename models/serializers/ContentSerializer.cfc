@@ -122,23 +122,12 @@ component {
 		];
 
 		if ( isNull( arguments.criteria ) ) {
-			arguments.criteria = variables.contentService.newCriteria();
+			arguments.criteria = getEligibleContentCriteria();
 		}
 		var q = arguments.criteria;
 		var r = q.restrictions;
 
 		var ops = q
-			.createAlias( "parent", "parent", q.LEFT_JOIN )
-			.createAlias( "creator", "creator" )
-			.createAlias( "site", "site" )
-			.createAlias( "categories", "categories", q.LEFT_JOIN )
-			.createAlias(
-				"contentVersions",
-				"activeContent",
-				q.INNER_JOIN,
-				r.isEq( "activeContent.isActive", javacast( "boolean", true ) )
-			)
-			.isIn( "this.contentType", variables.moduleSettings.contentTypes )
 			.withProjections( property = projectionIncludes.toList() )
 			.asStruct()
 			.list( asQuery = false )
@@ -196,6 +185,37 @@ component {
 				"refresh"  : arguments.refresh ? "wait_for" : false
 			}
 		);
+	}
+
+	function getEligibleContentCriteria( boolean withJoins = true ){
+		var q = variables.contentService.newCriteria();
+		var r = q.restrictions;
+		if( arguments.withJoins ){
+			q.createAlias( "parent", "parent", q.LEFT_JOIN )
+				.createAlias( "creator", "creator" )
+				.createAlias( "site", "site" )
+				.createAlias( "categories", "categories", q.LEFT_JOIN );
+		}
+		return q.createAlias(
+					"contentVersions",
+					"activeContent",
+					q.INNER_JOIN,
+					r.isEq( "activeContent.isActive", javacast( "boolean", true ) )
+				)
+				.isEq( "showInSearch", javacast( "boolean", true ) )
+				.isEq( "isPublished", javacast( "boolean", true ) )
+				.isEq( "isDeleted", javacast( "boolean", false ) )
+				.isIn( "this.contentType", variables.moduleSettings.contentTypes )
+				// exclude relocation widget content
+				.Conjunction([
+					r.not( r.like( "activeContent.content", "widget" ) ),
+					r.not( r.like( "activeContent.content", "relocate" ) )
+				])
+				// exclude empty content
+				.Disjunction([
+					r.not( r.like( "activeContent.content", "" ) ),
+					r.not( r.like( "excerpt", "" ) )
+				])
 	}
 
 }

@@ -98,16 +98,7 @@ component extends="coldbox.system.RestHandler" {
 		var searchIndex = variables.moduleSettings.searchIndex;
 		var q = getInstance( "ContentService@contentbox" ).newCriteria();
 		var r = q.restrictions;
-		var dbSearchCriteria = getInstance( "ContentService@contentbox" )
-									.newCriteria()
-									.isIn( "this.contentType", contentTypes )
-									.isEq( "site", cb.site() )
-									.createAlias(
-										"contentVersions",
-										"activeContent",
-										q.INNER_JOIN,
-										r.isEq( "activeContent.isActive", javacast( "boolean", true ))
-									);
+		var dbSearchCriteria = getInstance( "ContentSerializer@escontentbox" ).getEligibleContentCriteria( withJoins = false );
 		var dbContentCount = dbSearchCriteria.count();
 		var mediaSearchBuilder = getInstance( "SearchBuilder@cbelasticsearch" ).new( searchIndex ).term( "contentType", "File" ).term( "siteID", cb.site().getId() );
 		var contentSearchBuilder = getInstance( "SearchBuilder@cbelasticsearch" ).new( searchIndex ).filterTerms( "contentType", contentTypes ).term( "siteID", cb.site().getId() );
