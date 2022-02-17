@@ -1,7 +1,6 @@
 component {
 
 	property name="contentService" inject="ContentService@contentbox";
-	property name="newDocument"    inject="provider:Document@cbelasticsearch";
 	property name="moduleSettings" inject="coldbox:moduleSettings:contentbox-elasticsearch";
 	property name="esClient"       inject="Client@cbelasticsearch";
 	property name="wirebox"        inject="wirebox";
@@ -19,6 +18,8 @@ component {
 			.ensureSearchIndex()
 			.ensurePipelines();
 	}
+
+	function newDocument() provider="Document@cbelasticsearch"{}
 
 	/**
 	 * Serializes an individual content entity
@@ -78,7 +79,7 @@ component {
 			structDelete( memento, "site" );
 		}
 
-		var doc = variables.newDocument
+		var doc = newDocument()
 			.setIndex( moduleSettings.searchIndex )
 			.setPipeline( variables.moduleSettings.pipeline )
 			.populate( memento )
@@ -152,7 +153,7 @@ component {
 					entry
 						.keyArray()
 						.each( function( key ){
-							if ( !isNull( entry[ key ] ) && isDate( entry[ key ] ) && !isNumeric( entry[ key ] ) ) {
+							if ( right( key, 4 ) == "Date" && structKeyExists( entry, key ) && !isNull( entry[ key ] ) && isDate( entry[ key ] ) && !isNumeric( entry[ key ] ) ) {
 								entry[ key ] = dateFormatter.format( entry[ key ] );
 							}
 						} );
@@ -166,10 +167,11 @@ component {
 					structDelete( entry, "creator.lastName" );
 					acc.append( entry );
 				}
-				if ( !isNull( entry[ "category" ] ) && len( entry[ "category" ] ) ) {
+				// ACF protection + full null support
+				if ( structKeyExists( entry, "category" ) && !isNull( entry[ "category" ] ) && len( entry[ "category" ] ) ) {
 					entry[ "categories" ].append( entry[ "category" ] );
 				}
-				if ( isNull( entry[ "expireDate" ] ) ) {
+				if( !structKeyExists( entry, "expireDate" ) || isNull( entry[ "expireDate" ] ) ) {
 					entry[ "expireDate" ] = dateFormatter.format( dateAdd( "y", 100, now() ) );
 				}
 				structDelete( entry, "category" );
