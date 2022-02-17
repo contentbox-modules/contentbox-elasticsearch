@@ -35,6 +35,10 @@ component {
 			);
 		}
 
+		// Add our prc.page value so that cbHelper can render content
+		var event = application.cbcontroller.getRequestService().getContext();
+		event.setPrivateValue( "page", arguments.entity );
+
 		var entityIncludes = [
 			"contentID:_id",
 			"contentID",
@@ -196,6 +200,15 @@ component {
 				.createAlias( "site", "site" )
 				.createAlias( "categories", "categories", q.LEFT_JOIN );
 		}
+		var contentSub = q.createSubcriteria( "cbContentVersion", "activeContent" )
+								.createAlias( "relatedContent", "relatedContent" )
+								.isEq( "activeContent.isActive", javacast( "boolean", true ) )
+								.Conjunction([
+									r.like( "activeContent.content", "%widget%" ),
+									r.like( "activeContent.content", "%Relocate%" )
+								])
+								.withProjections( property="relatedContent.contentID" );
+
 		return q.createAlias(
 					"contentVersions",
 					"activeContent",
@@ -207,15 +220,7 @@ component {
 				.isEq( "isDeleted", javacast( "boolean", false ) )
 				.isIn( "this.contentType", variables.moduleSettings.contentTypes )
 				// exclude relocation widget content
-				.Conjunction([
-					r.not( r.like( "activeContent.content", "widget" ) ),
-					r.not( r.like( "activeContent.content", "relocate" ) )
-				])
-				// exclude empty content
-				.Disjunction([
-					r.not( r.like( "activeContent.content", "" ) ),
-					r.not( r.like( "excerpt", "" ) )
-				])
+				.add( contentSub.propertyNotIn( "contentID" ) )
 	}
 
 }
