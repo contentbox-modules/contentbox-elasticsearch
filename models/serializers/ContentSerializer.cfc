@@ -157,10 +157,11 @@ component {
 							}
 						} );
 					entry[ "categories" ] = [];
-					entry[ "creator" ]    = [
+					var creator = [
 						entry[ "creator.firstName" ],
 						entry[ "creator.lastName" ]
-					].toList( " " );
+					];
+					entry[ "creator" ]    = creator.toList( " " );
 					structDelete( entry, "creator.firstName" );
 					structDelete( entry, "creator.lastName" );
 					acc.append( entry );
