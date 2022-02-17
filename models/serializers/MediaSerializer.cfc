@@ -86,17 +86,8 @@ component {
 	 * @refresh   whether to wait for the document to be saved and re-indexed
 	 */
 	array function serializeAll( directory, refresh=false ){
-		var searchPath       = arguments.directory ?: moduleSettings.ingestBaseDirectory;
-		var searchExtensions = moduleSettings.ingestExtensionFilter;
 
-		var eligibleMedia = directoryList(
-			searchPath,
-			true,
-			"path",
-			searchExtensions,
-			"textnocase",
-			"file"
-		);
+		var eligibleMedia = getEligibleMedia( argumentCollection=arguments );
 
 		// We have to ingest each media item in its own request or we could overload the ES server
 		return eligibleMedia.map( function( path ){
@@ -125,6 +116,20 @@ component {
 			.asStruct()
 			.get();
 		return !isNull( mediaSite ) && !structIsEmpty( mediaSite ) ? mediaSite[ "siteID" ] : "";
+	}
+
+	function getEligibleMedia( directory ){
+		var searchPath       = arguments.directory ?: expandPath( moduleSettings.ingestBaseDirectory );
+		var searchExtensions = moduleSettings.ingestExtensionFilter;
+
+		return directoryList(
+			searchPath,
+			true,
+			"path",
+			searchExtensions,
+			"textnocase",
+			"file"
+		);
 	}
 
 }

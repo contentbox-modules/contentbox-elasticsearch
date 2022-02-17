@@ -127,14 +127,7 @@ component extends="coldbox.system.RestHandler" {
 											.map( function( doc ){ return doc.getMemento(); } )
 									: [];
 		var eligibleMedia = variables.moduleSettings.ingestMedia
-								? directoryList(
-									moduleSettings.ingestBaseDirectory,
-									true,
-									"path",
-									moduleSettings.ingestExtensionFilter,
-									"textnocase",
-									"file"
-								)
+								? getInstance( "MediaSerializer@escontentbox" ).getEligibleMedia()
 								: [];
 		var eligibleContent = dbSearchCriteria.withProjections( property="contentID,slug,this.contentType:contentType,title" ).asStruct().list( asQuery=false );
 
