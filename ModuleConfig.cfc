@@ -77,6 +77,9 @@ component {
 			controller.getLogbox().getRootLogger().error( "An attempt to create the elasticsearch index #settings.searchIndex# was made but an error occurred. The exception was #e.message#:#e.detail#" );
 		}
 
+		// Ensure our SES value is true for the build link call ( https://ortussolutions.atlassian.net/browse/COLDBOX-1096 )
+		controller.getRequestService().getContext().setSESEnabled( true );
+
 		// Add Admin Menu section
 		var menuService = controller.getWireBox().getInstance( "AdminMenuService@contentbox" );
 		// Add Menu Contribution
