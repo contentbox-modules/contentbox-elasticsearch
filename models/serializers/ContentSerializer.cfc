@@ -71,6 +71,13 @@ component {
 			iso8601Format  = true
 		);
 
+		memento.keyArray().each( function( key ){
+			// Ensure ISO8601 format for odd payload values
+			if( right( key, 4 ) == 'Date' && structKeyExists( memento, key ) && !isNull( memento[ key ] ) && len( memento[ key ] ) && !findNoCase( 'T', memento[ key ] ) ){
+				memento[ key ] = dateFormatter.format( lsParseDateTime( memento[ key ] ) )
+			}
+		} );
+
 		if ( !len( memento.expireDate ) ) {
 			// make sure we have an expire date for comparisons
 			memento.expireDate = dateFormatter.format( dateAdd( "y", 100, now() ) );
