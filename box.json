@@ -3,13 +3,13 @@
     "version":"1.0.0",
     "author":"Ortus Solutions, Corp",
     "location":"https://downloads.ortussolutions.com/ortussolutions/contentbox-modules/contentbox-elasticsearch/@build.version@/contentbox-elasticsearch-@build.version@.zip",
-    "homepage":"https://github.com/ortus-solutions/contentbox-elasticsearch",
-    "documentation":"https://github.com/ortus-solutions/contentbox-elasticsearch",
+    "homepage":"https://github.com/contentbox-modules/contentbox-elasticsearch",
+    "documentation":"https://github.com/contentbox-modules/contentbox-elasticsearch",
     "repository":{
         "type":"git",
-        "URL":"https://github.com/ortus-solutions/contentbox-elasticsearch"
+        "URL":"https://github.com/contentbox-modules/contentbox-elasticsearch"
     },
-    "bugs":"https://github.com/ortus-solutions/contentbox-elasticsearch/issues",
+    "bugs":"https://github.com/contentbox-modules/contentbox-elasticsearch/issues",
     "slug":"contentbox-elasticsearch",
     "shortDescription":"The ContentBox CMS Elasticsearch Provider",
     "description":"The ContentBox CMS Elasticsearch Provider",
