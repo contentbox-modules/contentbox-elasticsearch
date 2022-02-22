@@ -1,6 +1,6 @@
 # ContentBox Elasticsearch Search Provider
 
-This contentbox module provides elasticsearch search capabilities for the ContentBox CMS Platform.  In addition, with the addition of the [Ingest Attachment Plugin for Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/plugins/current/ingest-attachment.html), it adds capabilities of ingesting PDF, MS Word, and other supported document formats from a directory you specify in the configuration.
+This contentbox module provides elasticsearch search capabilities for the ContentBox CMS Platform.  With the addition of the [Ingest Attachment Plugin for Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/plugins/current/ingest-attachment.html), it adds capabilities of ingesting PDF, MS Word, and other supported document formats from a directory you specify in the configuration.
 
 ## Getting Started
 
