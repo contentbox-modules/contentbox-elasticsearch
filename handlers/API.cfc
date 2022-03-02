@@ -103,8 +103,9 @@ component extends="coldbox.system.RestHandler" {
 		var mediaSearchBuilder = getInstance( "SearchBuilder@cbelasticsearch" ).new( searchIndex ).term( "contentType", "File" ).term( "siteID", cb.site().getId() );
 		var contentSearchBuilder = getInstance( "SearchBuilder@cbelasticsearch" ).new( searchIndex ).filterTerms( "contentType", contentTypes ).term( "siteID", cb.site().getId() );
 		var esContentCount = contentSearchBuilder.count();
-		var serializedContent = contentSearchBuilder.setSourceIncludes( [ "contentID", "contentType", "title", "slug" ] )
+		var serializedContent = contentSearchBuilder.setSourceIncludes( [ "contentID", "contentType", "title", "slug", "meta" ] )
 																.setMaxRows( dbContentCount )
+																.sort( "title.keyword" )
 																.execute()
 																.getHits()
 																.map( function( doc ){ return doc.getMemento(); } );
@@ -113,6 +114,7 @@ component extends="coldbox.system.RestHandler" {
 		var serializedMedia = variables.moduleSettings.ingestMedia
 									? mediaSearchBuilder.setSourceIncludes( [ "contentID", "contentType", "title", "featuredImage" ] )
 											.setMaxRows( esMediaCount )
+											.sort( "title.keyword" )
 											.execute()
 											.getHits()
 											.map( function( doc ){ return doc.getMemento(); } )
