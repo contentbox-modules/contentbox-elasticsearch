@@ -104,8 +104,9 @@ component {
 	 *
 	 * @criteria An optional restrictive criteria query to pass in
 	 * @refresh   whether to wait for the bulk operation to complete re-indexing before returning a result
+	 * @batchMaximum The maximum number of items to serialize per batch operation
 	 */
-	function serializeAll( criteria, refresh = false ){
+	function serializeAll( criteria, refresh = false, batchMaximum=100 ){
 		var projectionIncludes = [
 			"contentID",
 			"contentType",
@@ -138,64 +139,78 @@ component {
 		var q = arguments.criteria;
 		var r = q.restrictions;
 
-		var ops = q
-			.withProjections( property = projectionIncludes.toList() )
-			.asStruct()
-			.list( asQuery = false )
-			.reduce( function( acc, item ){
-				var exists = acc.find( function( entry ){
-					return entry[ "contentID" ] == item[ "contentID" ];
-				} );
-				if ( exists ) {
-					var entry = acc[ exists ];
-				} else {
-					var entry = item;
-					entry
-						.keyArray()
-						.each( function( key ){
-							if ( right( key, 4 ) == "Date" && structKeyExists( entry, key ) && !isNull( entry[ key ] ) && isDate( entry[ key ] ) && !isNumeric( entry[ key ] ) ) {
-								entry[ key ] = dateFormatter.format( entry[ key ] );
-							}
-						} );
-					entry[ "categories" ] = [];
-					var creator = [
-						entry[ "creator.firstName" ],
-						entry[ "creator.lastName" ]
-					];
-					entry[ "creator" ]    = creator.toList( " " );
-					structDelete( entry, "creator.firstName" );
-					structDelete( entry, "creator.lastName" );
-					acc.append( entry );
-				}
-				// ACF protection + full null support
-				if ( structKeyExists( entry, "category" ) && !isNull( entry[ "category" ] ) && len( entry[ "category" ] ) ) {
-					entry[ "categories" ].append( entry[ "category" ] );
-				}
-				if( !structKeyExists( entry, "expireDate" ) || isNull( entry[ "expireDate" ] ) ) {
-					entry[ "expireDate" ] = dateFormatter.format( dateAdd( "y", 100, now() ) );
-				}
-				structDelete( entry, "category" );
-				return acc;
-			}, [] )
-			.map( function( item ){
-				return {
-					"operation" : {
-						"update" : {
-							"_index" : moduleSettings.searchIndex,
-							"_id"    : item[ "contentID" ]
-						}
-					},
-					"source" : { "doc" : item, "doc_as_upsert" : true }
-				};
-			} );
+		var ops = [];
 
-		return variables.esClient.processBulkOperation(
-			operations = ops,
-			params     = {
-				"pipeline" : variables.moduleSettings.pipeline,
-				"refresh"  : arguments.refresh ? "wait_for" : false
-			}
-		);
+		var total = q.count();
+
+		// Serialize in batches of 100
+		for( var i = 0; i <= total; i+=50 ){
+			var segment = q
+				.withProjections( property = projectionIncludes.toList() )
+				.asStruct()
+				.list( asQuery = false, max = 20, offset = i )
+				.reduce( function( acc, item ){
+					var exists = acc.find( function( entry ){
+						return entry[ "contentID" ] == item[ "contentID" ];
+					} );
+					if ( exists ) {
+						var entry = acc[ exists ];
+					} else {
+						var entry = item;
+						entry
+							.keyArray()
+							.each( function( key ){
+								if ( right( key, 4 ) == "Date" && structKeyExists( entry, key ) && !isNull( entry[ key ] ) && isDate( entry[ key ] ) && !isNumeric( entry[ key ] ) ) {
+									entry[ key ] = dateFormatter.format( entry[ key ] );
+								}
+							} );
+						entry[ "categories" ] = [];
+						var creator = [
+							entry[ "creator.firstName" ],
+							entry[ "creator.lastName" ]
+						];
+						entry[ "creator" ]    = creator.toList( " " );
+						structDelete( entry, "creator.firstName" );
+						structDelete( entry, "creator.lastName" );
+						acc.append( entry );
+					}
+					// ACF protection + full null support
+					if ( structKeyExists( entry, "category" ) && !isNull( entry[ "category" ] ) && len( entry[ "category" ] ) ) {
+						entry[ "categories" ].append( entry[ "category" ] );
+					}
+					if( !structKeyExists( entry, "expireDate" ) || isNull( entry[ "expireDate" ] ) ) {
+						entry[ "expireDate" ] = dateFormatter.format( dateAdd( "y", 100, now() ) );
+					}
+					structDelete( entry, "category" );
+					return acc;
+				}, [] )
+				.map( function( item ){
+					return {
+						"operation" : {
+							"update" : {
+								"_index" : moduleSettings.searchIndex,
+								"_id"    : item[ "contentID" ]
+							}
+						},
+						"source" : { "doc" : item, "doc_as_upsert" : true }
+					};
+				} );
+
+			arrayAppend(
+				ops,
+				variables.esClient.processBulkOperation(
+					operations = segment,
+					params     = {
+						"pipeline" : variables.moduleSettings.pipeline,
+						"refresh"  : arguments.refresh ? "wait_for" : false
+					}
+				),
+				true
+			);
+		}
+
+		return ops;
+
 	}
 
 	function getEligibleContentCriteria( boolean withJoins = true ){
