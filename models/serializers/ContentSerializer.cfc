@@ -222,9 +222,9 @@ component {
 					q.INNER_JOIN,
 					r.isEq( "activeContent.isActive", javacast( "boolean", true ) )
 				)
-				.isEq( "showInSearch", javacast( "boolean", true ) )
-				.isEq( "isPublished", javacast( "boolean", true ) )
-				.isEq( "isDeleted", javacast( "boolean", false ) )
+				.isEq( "this.showInSearch", javacast( "boolean", true ) )
+				.isEq( "this.isPublished", javacast( "boolean", true ) )
+				.isEq( "this.isDeleted", javacast( "boolean", false ) )
 				.isIn( "this.contentType", variables.moduleSettings.contentTypes )
 				// exclude relocation widget content
 				.add( contentSub.propertyNotIn( "contentID" ) )
