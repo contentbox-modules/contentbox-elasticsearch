@@ -107,14 +107,18 @@ component {
 		var isExpandedPath = findNoCase( expandPath( '/' ), arguments.path );
 		var mediaDirectory = isExpandedPath ? expandPath( settingService.getSetting( "cb_media_directoryRoot" ) ) : settingService.getSetting( "cb_media_directoryRoot" );
 		var sitePath       = replace( path, mediaDirectory, "" );
-		siteSlug           = listGetAt( sitePath, 2, "\/" );
-		var mediaSite      = wirebox
-			.getInstance( "SiteService@contentbox" )
-			.newCriteria()
-			.isEq( "slug", siteSlug )
-			.withProjections( property = "siteID" )
-			.asStruct()
-			.get();
+		if( listLen( sitePath, "\/" )  > 1 ){
+			siteSlug           = listGetAt( sitePath, 2, "\/" );
+			var mediaSite      = wirebox
+				.getInstance( "SiteService@contentbox" )
+				.newCriteria()
+				.isEq( "slug", siteSlug )
+				.withProjections( property = "siteID" )
+				.asStruct()
+				.get();
+		} else {
+			var mediaSite = javacast( "null", 0 );
+		}
 		return !isNull( mediaSite ) && !structIsEmpty( mediaSite ) ? mediaSite[ "siteID" ] : "";
 	}
 
