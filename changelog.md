@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed an issue on media serializing of content from migrated sites
 * Assign all media without site identifier to default site ( for ContentBox 4 migrated sites)
+* Fix syntax issue on search term highlighting
 ## [1.0.1] => 2022-03-02
 
 ### Fixed

@@ -26,7 +26,7 @@
 
 		try {
 			return reReplaceNoCase(
-				excerpt,
+				arguments.content,
 				"(#arguments.term#)",
 				"<span class='highlight'>\1</span>",
 				"all"
