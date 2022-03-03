@@ -1,6 +1,6 @@
 {
     "name":"contentbox-elasticsearch",
-    "version":"1.0.1",
+    "version":"1.0.2",
     "author":"Ortus Solutions, Corp",
     "location":"https://downloads.ortussolutions.com/ortussolutions/contentbox-modules/contentbox-elasticsearch/@build.version@/contentbox-elasticsearch-@build.version@.zip",
     "homepage":"https://github.com/contentbox-modules/contentbox-elasticsearch",
