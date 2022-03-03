@@ -1,12 +1,17 @@
 component {
 	property name="moduleSettings" inject="coldbox:moduleSettings:contentbox-elasticsearch";
 	property name="settingService" inject="settingService@contentbox";
+	property name="siteService"    inject="SiteService@contentbox";
 	property name="esClient"       inject="Client@cbelasticsearch";
 	property name="wirebox"        inject="wirebox";
 
 	variables.dateFormatter = createObject( "java", "java.text.SimpleDateFormat" ).init(
 		"yyyy-MM-dd'T'HH:mm:ssXXX"
 	);
+
+	function onDIComplete(){
+		variables.defaultSiteId = variables.siteService.getDefaultsiteID();
+	}
 
 	function newDocument() provider="Document@cbelasticsearch"{}
 
@@ -109,17 +114,16 @@ component {
 		var sitePath       = replace( path, mediaDirectory, "" );
 		if( listLen( sitePath, "\/" )  > 1 ){
 			siteSlug           = listGetAt( sitePath, 2, "\/" );
-			var mediaSite      = wirebox
-				.getInstance( "SiteService@contentbox" )
-				.newCriteria()
-				.isEq( "slug", siteSlug )
-				.withProjections( property = "siteID" )
-				.asStruct()
-				.get();
+			var mediaSite      = variables.siteService
+									.newCriteria()
+									.isEq( "slug", siteSlug )
+									.withProjections( property = "siteID" )
+									.asStruct()
+									.get();
 		} else {
 			var mediaSite = javacast( "null", 0 );
 		}
-		return !isNull( mediaSite ) && !structIsEmpty( mediaSite ) ? mediaSite[ "siteID" ] : "";
+		return !isNull( mediaSite ) && !structIsEmpty( mediaSite ) ? mediaSite[ "siteID" ] : variables.defaultSiteId;
 	}
 
 	function getEligibleMedia( directory ){
