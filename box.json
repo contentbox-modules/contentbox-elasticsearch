@@ -1,6 +1,6 @@
 {
     "name":"contentbox-elasticsearch",
-    "version":"1.0.2",
+    "version":"1.0.3",
     "author":"Ortus Solutions, Corp",
     "location":"https://downloads.ortussolutions.com/ortussolutions/contentbox-modules/contentbox-elasticsearch/@build.version@/contentbox-elasticsearch-@build.version@.zip",
     "homepage":"https://github.com/contentbox-modules/contentbox-elasticsearch",
@@ -22,19 +22,14 @@
         "cbelasticsearch":"modules/cbelasticsearch/"
     },
     "scripts":{
-        "postVersion":"package set location='git@github.com:contentbox-modules/contentbox-elasticsearch.git#v`package version`'",
-        "onRelease":"publish",
-        "postPublish":"!git push && !git push --tags"
-    },
-    "ignore":[
-        "**/.*",
-        "test-harness",
-		"build"
-    ],
-    "scripts":{
         "release":"recipe build/release.boxr",
         "format":"cfformat run models,test-harness/tests/specs/,ModuleConfig.cfc --overwrite",
         "format:watch":"cfformat watch models,test-harness/tests/specs/,ModuleConfig.cfc ./.cfformat.json",
         "format:check":"cfformat check models,test-harness/tests/specs/,ModuleConfig.cfc ./.cfformat.json"
-    }
+    },
+    "ignore":[
+        "**/.*",
+        "test-harness",
+        "build"
+    ]
 }
