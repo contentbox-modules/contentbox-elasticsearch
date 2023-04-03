@@ -6,6 +6,7 @@ component {
 	property name="cache"           inject="cachebox:default";
 	property name="newIndexBuilder" inject="provider:IndexBuilder@cbelasticsearch";
 	property name="wirebox"         inject="wirebox";
+	property name="log"             inject="logbox:logger:{this}";
 
 	/**
 	 * Ensures the search indexes exist
