@@ -94,12 +94,15 @@ component {
 			&& variables.moduleSettings.contentTypes.contains(
 				interceptData.entity.getContentType()
 			)
+			&& interceptData.entity.getShowInSearch()
 		) {
 			// ensure our cache is cleared for newly rendered content
 			variables.cachebox
 				.getCache( variables.settingService.getSetting( "cb_content_cacheName" ) )
 				.clearQuiet( interceptData.entity.buildContentCacheKey() );
 			variables.contentSerializer.serialize( interceptData.entity );
+		} else {
+			this.ORMPreDelete( argumentCollection=arguments );
 		}
 	}
 
