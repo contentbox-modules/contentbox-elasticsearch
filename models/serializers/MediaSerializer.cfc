@@ -4,6 +4,7 @@ component {
 	property name="siteService"    inject="SiteService@contentbox";
 	property name="esClient"       inject="Client@cbelasticsearch";
 	property name="wirebox"        inject="wirebox";
+	property name="controller"     inject="coldbox";
 
 	variables.dateFormatter = createObject( "java", "java.text.SimpleDateFormat" ).init(
 		"yyyy-MM-dd'T'HH:mm:ssXXX"
@@ -25,7 +26,7 @@ component {
 	struct function serialize( required string mediaPath, struct memento = {}, refresh=false ){
 
 		// We need to ensure our path is always expanded so that key names remain consistent
-		var isExpandedPath = findNoCase( expandPath( settingService.getSetting( "cb_media_directoryRoot" ) ), arguments.mediaPath );
+		var isExpandedPath = findNoCase( variables.controller.getAppRootPath(), arguments.mediaPath );
 
 		if ( !fileExists( arguments.mediaPath ) || !isExpandedPath ) {
 			var providedPath    = arguments.mediaPath;
@@ -34,8 +35,7 @@ component {
 			if ( !fileExists( arguments.mediaPath ) ) {
 				throw(
 					type    = "ESContentBox.missingFileException",
-					message = "The file provided for media serialization, #providedPath#, does not exist in either an absolute or expanded path. Serialization cannot continue",
-					detail  = "#serializeJSON( e, false, false )#"
+					message = "The file provided for media serialization, #providedPath#, does not exist in either an absolute or expanded path. Serialization cannot continue"
 				);
 			}
 		}
@@ -81,7 +81,7 @@ component {
 			.populate( arguments.memento )
 			.save( refresh = arguments.refresh );
 
-		return { "contentID" : memento.contentID, "path" : arguments.mediaPath };
+		return { "contentID" : memento.contentID, "contentType" : "File", "featuredImage" : arguments.mediaPath, "title" : listLast( arguments.mediaPath, "/\" ) };
 	}
 
 	/**
@@ -89,8 +89,9 @@ component {
 	 *
 	 * @directory An optional directory to restrict serialization to
 	 * @refresh   whether to wait for the document to be saved and re-indexed
+	 * @siteId  The identifier of the site to serialize media for
 	 */
-	array function serializeAll( directory, refresh=false ){
+	array function serializeAll( directory, refresh=false, siteID ){
 
 		var eligibleMedia = getEligibleMedia( argumentCollection=arguments );
 
@@ -101,7 +102,7 @@ component {
 				{
 					"_id"       : hash( arguments.path ),
 					"contentID" : hash( arguments.path ),
-					"siteID"    : getSiteIDFromPath( arguments.path )
+					"siteID"    : siteID ?: getSiteIDFromPath( arguments.path )
 				},
 				refresh
 			);
