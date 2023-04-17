@@ -70,11 +70,11 @@ component extends="coldbox.system.RestHandler" {
 			if( structKeyExists( rc, "contentID" ) ){
 				var result = serializer.serialize(
 					rc.contentType == "File" ? rc.contentID : getInstance( "ContentService@contentbox" ).getOrFail( rc.contentID ),
-					rc.contentType == 'File' ? {} : true,
+					rc.contentType == 'File' ? { "siteID" : cb.site().getSiteID() } : true,
 					rc.contentType == 'File' ? true : javacast( "null", 0 )
 				);
 			} else {
-				var result = serializer.serializeAll( refresh=true );
+				var result = serializer.serializeAll( refresh=true, siteID=cb.site().getSiteID() );
 			}
 			prc.response.setData( result );
 		}
@@ -100,8 +100,8 @@ component extends="coldbox.system.RestHandler" {
 		var r = q.restrictions;
 		var dbSearchCriteria = getInstance( "ContentSerializer@escontentbox" ).getEligibleContentCriteria( withJoins = false );
 		var dbContentCount = dbSearchCriteria.count();
-		var mediaSearchBuilder = getInstance( "SearchBuilder@cbelasticsearch" ).new( searchIndex ).term( "contentType", "File" ).term( "siteID", cb.site().getId() );
-		var contentSearchBuilder = getInstance( "SearchBuilder@cbelasticsearch" ).new( searchIndex ).filterTerms( "contentType", contentTypes ).term( "siteID", cb.site().getId() );
+		var mediaSearchBuilder = getInstance( "SearchBuilder@cbelasticsearch" ).new( searchIndex ).filterTerm( "contentType", "File" ).filterTerm( "siteID", cb.site().getId() );
+		var contentSearchBuilder = getInstance( "SearchBuilder@cbelasticsearch" ).new( searchIndex ).filterTerms( "contentType", contentTypes ).filterTerm( "siteID", cb.site().getId() );
 		var esContentCount = contentSearchBuilder.count();
 		var serializedContent = contentSearchBuilder.setSourceIncludes( [ "contentID", "contentType", "title", "slug", "meta" ] )
 																.setMaxRows( dbContentCount )
