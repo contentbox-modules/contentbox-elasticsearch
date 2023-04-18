@@ -30,3 +30,4 @@ includes/*.json
 logs/**
 /nbproject/private/
 nbproject/
+changelog-latest.md
