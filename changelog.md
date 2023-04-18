@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ----
+## [1.2.0] => 2023-04-18
+## Added
+* Updates to UI to allow for content filtering and better display of large site collections
+* Ensures bulk serialization captures rendered content when widgets or content store items are present
+## Fixed
+* Fixes an issue where cascading saves would serialize non searchable content
+* Ensures content is deleted from the index if the search setting is changed
+* Misc UI fixes for serialization admin
+
 ## [1.0.4] => 2023-04-03
 ### Fixed
 * Fixes an issue with log injection in SearchIndex.cfc
