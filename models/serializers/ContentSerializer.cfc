@@ -102,11 +102,10 @@ component {
 	/**
 	 * Bulk serializes all content in the system
 	 *
-	 * @criteria An optional restrictive criteria query to pass in
 	 * @refresh   whether to wait for the bulk operation to complete re-indexing before returning a result
 	 * @batchMaximum The maximum number of items to serialize per batch operation
 	 */
-	function serializeAll( criteria, refresh = false, batchMaximum=100 ){
+	function serializeAll( refresh = false, batchMaximum=100 ){
 		var projectionIncludes = [
 			"contentID",
 			"contentType",
@@ -133,23 +132,19 @@ component {
 			"activeContent.content:content"
 		];
 
-		if ( isNull( arguments.criteria ) ) {
-			arguments.criteria = getEligibleContentCriteria();
-		}
-		var q = arguments.criteria;
-		var r = q.restrictions;
-
 		var ops = [];
 
-		var total = q.count();
+		var results = getEligibleContentCriteria()
+							.withProjections( property = projectionIncludes.toList() )
+							.asStruct()
+							.list( asQuery = false );
 
-		// Serialize in batches of 100
-		for( var i = 0; i <= total; i+=50 ){
-			var segment = q
-				.withProjections( property = projectionIncludes.toList() )
-				.asStruct()
-				.list( asQuery = false, max = 20, offset = i )
-				.reduce( function( acc, item ){
+
+		// Serialize in batches to prevent overloading ES
+		for( var i = 1; i < results.len(); i+=batchMaximum ){
+				var end = results.len() <= i + batchMaximum ? results.len() - i : batchMaximum;
+				var segment = results.slice( i, end )
+					.reduce( function( acc, item ){
 					var exists = acc.find( function( entry ){
 						return entry[ "contentID" ] == item[ "contentID" ];
 					} );
@@ -161,15 +156,20 @@ component {
 							.keyArray()
 							.each( function( key ){
 								if ( right( key, 4 ) == "Date" && structKeyExists( entry, key ) && !isNull( entry[ key ] ) && isDate( entry[ key ] ) && !isNumeric( entry[ key ] ) ) {
-									entry[ key ] = dateFormatter.format( entry[ key ] );
+									var parsedDate = parseDateTime( entry[ key ] );
+									entry[ key ] = dateFormatter.format( parsedDate );
 								}
 							} );
 						entry[ "categories" ] = [];
-						var creator = [
-							entry[ "creator.firstName" ],
-							entry[ "creator.lastName" ]
-						];
-						entry[ "creator" ]    = creator.toList( " " );
+						if( structKeyExists( entry, "creator.firstName" ) ){
+							var creator = [
+								entry[ "creator.firstName" ],
+								entry[ "creator.lastName" ]
+							];
+							entry[ "creator" ]    = creator.toList( " " );
+						} else {
+							entry[ "creator" ]    = "";
+						}
 						structDelete( entry, "creator.firstName" );
 						structDelete( entry, "creator.lastName" );
 						acc.append( entry );
@@ -182,6 +182,11 @@ component {
 						entry[ "expireDate" ] = dateFormatter.format( dateAdd( "y", 100, now() ) );
 					}
 					structDelete( entry, "category" );
+					// check for any rendered content widgets
+					if( findNoCase( "<widget", entry[ "content" ]  ) && findNoCase( "{{{", entry[ "content" ] ) ){
+						entry[ "content" ] = variables.contentService.get( entry[ "contentID" ] ).getRenderedContent();
+					}
+
 					return acc;
 				}, [] )
 				.map( function( item ){
