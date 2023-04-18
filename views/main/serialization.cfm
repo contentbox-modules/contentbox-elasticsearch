@@ -184,7 +184,7 @@
 													<tbody>
 														<template x-for="( mediaItem ) in filteredMediaContent()">
 															<tr>
-																<td><a x-bind:href="'/'+mediaItem.slug" x-text="mediaItem.featuredImage.split( '\/' ).pop()" target="_blank"></a></td>
+																<td><a x-bind:href="mediaHref( mediaItem.featuredImage )" x-text="mediaItem.featuredImage.split( '\/' ).pop()" target="_blank"></a></td>
 																<td x-text="mediaItem.featuredImage.split( '\/' ).pop().split( '.' ).pop().toUpperCase()"></td>
 																<td style="white-space:nowrap">
 																	<a @click="serialize( mediaItem.contentType, mediaItem.featuredImage );spinThis( $event )" class="text-muted"><i class="fa fa-upload" data-toggle="tooltip" x-bind:title="'Re-Serialize ' + mediaItem.featuredImage.split( '\/' ).pop()"></i></a>

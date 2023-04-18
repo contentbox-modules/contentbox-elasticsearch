@@ -1,5 +1,6 @@
 <cfscript>
 	args.mediaDirectory = getInstance( "SettingService@contentbox" ).getSetting( "cb_media_directoryRoot" );
+	args.rootDirectory = getController().getAppRootPath();
 </cfscript>
 <cfoutput>
 <script type="application/javascript">
@@ -7,6 +8,7 @@
 		return {
 			mediaDirectory : '#args.mediaDirectory#',
 			mediaDirectoryExpanded : '#expandPath( args.mediaDirectory )#',
+			cbRootDirectory : '#args.rootDirectory#',
 			serializationQueue : [],
 			isLoading : false,
 			isSerializingFile : false,
@@ -85,7 +87,11 @@
 									break;
 							}
 						} else {
-							self.serializedMedia = result.data;
+							if( contentType == 'Content' ){
+								self.loadSnapshot();
+							} else {
+								self.serializedMedia = result.data;
+							}
 						}
 
 					}
@@ -143,7 +149,7 @@
 				return this.eligibleMedia.filter( file => this.serializedMedia.findIndex( ser => ser.featuredImage == file ) == -1 && file.indexOf( this.filters.smSearch.toLowerCase() ) != -1 ).sort( ( a, b ) => a.split( '\/' ).pop().localeCompare( b.split( '\/' ).pop() ) );
 			},
 			mediaHref( filePath ){
-				return filePath.replace( this.mediaDirectoryExpanded, '/__media' ).replace( this.mediaDirectory, '/__media' );
+				return filePath.replace( this.mediaDirectoryExpanded, '/__media' ).replace( this.mediaDirectory, '/__media' ).replace( this.cbRootDirectory, '/' );
 			},
 			spinThis( e ){
 				var $icon = window.$( e.target ).hasClass( 'fa' ) ? window.$( e.target ) : window.$( "i.fa", window.$( e.target ) );
