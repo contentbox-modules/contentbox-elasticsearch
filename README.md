@@ -37,7 +37,7 @@ In addition to the Elasticsearch configuration, the module configuration may be 
 By default, the indexing of media is disabled.  If you wish to enable this, you must first install the [Ingest Attachment Plugin for Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/plugins/current/ingest-attachment.html).  If you are using docker, you may do this using a Dockerfile, like so:
 
 ```
-FROM docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+FROM docker.elastic.co/elasticsearch/elasticsearch:8.19.5
 
 RUN bin/elasticsearch-plugin install ingest-attachment --batch
 ```
