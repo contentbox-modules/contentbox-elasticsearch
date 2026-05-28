@@ -15,7 +15,7 @@
     "description":"The ContentBox CMS Elasticsearch Provider",
     "type":"modules",
     "dependencies":{
-        "cbelasticsearch":"^2.2.4"
+        "cbelasticsearch":"^3.6.0"
     },
     "devDependencies":{},
     "installPaths":{
